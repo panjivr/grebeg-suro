@@ -1,65 +1,68 @@
 # DEPLOY.md — Volunteer Grebeg Suro (Sistem Absensi)
 
-Deploy ke VPS **IDCloudHost / AlmaLinux 10** — PM2 + Nginx + PostgreSQL 16 + Prisma + Next.js 15.
+Deploy ke VPS **IDCloudHost / AlmaLinux 10** — **berdampingan** dengan sistem yang sudah ada (mis. Ultra AI Arbitrage di Docker). Pendekatan ini **NON-DESTRUKTIF**: tidak menghapus app/DB lain, pakai **subdomain & port sendiri**.
 
-> Server: AlmaLinux v10.x · 2 vCPU · 4 GB RAM · 80 GB · IP `103.31.38.106`
+> Server: AlmaLinux 10 · IP `103.31.38.106`
+> App ini: domain **`absensi.103-31-38-106.sslip.io`** · port internal **3100** · DB `grebeg`
 
-> 🔴 **WAJIB BACA — HTTPS bukan opsional.**
-> Fitur inti aplikasi (kamera selfie & GPS) **diblokir browser** kecuali di *secure context* (HTTPS atau `localhost`).
-> Di atas `http://103.31.38.106` polos, **Clock In/Out tidak akan jalan**.
-> Solusi: pakai domain **`103-31-38-106.sslip.io`** (otomatis mengarah ke IP-mu) lalu pasang sertifikat Let's Encrypt (Step 9). Gratis, tanpa beli domain.
+> 🔴 **HTTPS WAJIB.** Kamera selfie & GPS diblokir browser kecuali di HTTPS (atau localhost). Tanpa HTTPS, Clock In/Out mati. Subdomain sslip.io + Certbot (Step 6) menyelesaikan ini.
 
-> ⚠️ **BACKUP DULU** sebelum hapus data lama (Step 1).
-> ⚠️ **GANTI PASSWORD VPS** — pakai password kuat 12+ karakter, idealnya SSH key.
+> ✅ **Aman untuk sistem lain.** Skrip `setup-vps.sh` TIDAK menjalankan `pm2 delete all`, TIDAK `DROP DATABASE`, dan hanya mengelola app `grebeg-suro`. Database & PM2 app lain tidak disentuh.
 
 ---
 
-## Variabel (ganti sesuai punyamu)
+## Ringkasan alur (4 langkah)
 
-```bash
-APP_NAME=grebeg-suro
-APP_DIR=/var/www/grebeg-suro
-GIT_REPO=https://github.com/USERNAME/REPO.git      # ganti
-DB_NAME=grebeg
-DB_USER=grebeg_user
-DB_PASS=GANTI_PASSWORD_KUAT
-DOMAIN=103-31-38-106.sslip.io                      # pakai sslip.io agar bisa HTTPS
-PORT=3100
-```
-
-> Tip: simpan variabel ini ke shell agar bisa dipakai di perintah berikutnya:
-> ```bash
-> export APP_NAME APP_DIR GIT_REPO DB_NAME DB_USER DB_PASS DOMAIN PORT
-> ```
+1. **Laptop** → kirim arsip kode ke VPS (SCP).
+2. **VPS** → ekstrak, jalankan `scripts/setup-vps.sh` (install, DB, migrate, seed, build, PM2).
+3. **VPS** → pasang vhost Nginx subdomain.
+4. **VPS** → `certbot` untuk HTTPS. Selesai.
 
 ---
 
-## Step 0 — Login & install tools (sekali per VPS)
+## Step 0 — (Laptop) Kirim kode ke VPS via SCP
 
-```bash
-ssh root@103.31.38.106     # atau user biasa lalu sudo
+Arsip `grebeg-suro-deploy.zip` sudah dibuat (tanpa `node_modules`, `.next`, `.git`, `.env`).
+
+```powershell
+# Dari laptop (PowerShell), upload ke VPS:
+scp C:\Users\Panji\grebeg-suro\grebeg-suro-deploy.zip root@103.31.38.106:/var/www/
 ```
+
+Lalu SSH ke VPS:
+```bash
+ssh root@103.31.38.106
+cd /var/www
+dnf install -y unzip
+mkdir -p grebeg-suro && unzip -o grebeg-suro-deploy.zip -d grebeg-suro
+cd grebeg-suro
+```
+
+---
+
+## Step 1 — (VPS) Install tools (lewati yang sudah ada)
 
 ```bash
 dnf update -y
-dnf install -y git nginx policycoreutils-python-utils
+dnf install -y git nginx curl policycoreutils-python-utils
 
-# Node.js 20 LTS
-curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
-dnf install -y nodejs
+# Node.js 20 LTS (jika belum ada)
+command -v node || { curl -fsSL https://rpm.nodesource.com/setup_20.x | bash - && dnf install -y nodejs; }
 
-# PostgreSQL 16
-dnf install -y postgresql-server postgresql-contrib
-postgresql-setup --initdb
-systemctl enable --now postgresql
+# PostgreSQL 16 di HOST (terpisah dari Postgres Docker sistem lain, jika ada)
+command -v psql || {
+  dnf install -y postgresql-server postgresql-contrib
+  postgresql-setup --initdb
+  systemctl enable --now postgresql
+}
 
 # PM2
-npm install -g pm2
+command -v pm2 || npm install -g pm2
 
 node -v && npm -v && psql --version && nginx -v
 ```
 
-> **Auth PostgreSQL AlmaLinux** default `ident`. Ubah ke `scram-sha-256`/`md5` agar bisa login pakai password dari aplikasi:
+> **Auth PostgreSQL** (sekali): ubah `ident` → `scram-sha-256` agar app bisa login pakai password.
 > ```bash
 > PGHBA=$(sudo -u postgres psql -tAc "SHOW hba_file;")
 > sed -i 's/^\(host.*all.*all.*127.0.0.1\/32.*\)ident/\1scram-sha-256/' $PGHBA
@@ -69,188 +72,80 @@ node -v && npm -v && psql --version && nginx -v
 
 ---
 
-## Step 1 — BACKUP DATA LAMA (jangan dilewati)
+## Step 2 — (VPS) Setup otomatis (1 perintah)
+
+Skrip ini idempotent & non-destruktif: buat DB `grebeg` (kalau belum ada), tulis `.env`, `npm ci`, `prisma migrate deploy`, seed, `npm run build`, lalu start PM2 di port 3100.
 
 ```bash
-mkdir -p /root/backups
-sudo -u postgres pg_dump $DB_NAME > /root/backups/${DB_NAME}_$(date +%F_%H%M).sql 2>/dev/null || echo "DB lama tidak ada / dilewati"
-tar -czf /root/backups/app_old_$(date +%F_%H%M).tar.gz $APP_DIR 2>/dev/null || echo "App lama tidak ada / dilewati"
-ls -lh /root/backups
+cd /var/www/grebeg-suro
+
+# Ganti DB_PASS dengan password kuat. JWT_SECRET di-generate otomatis bila tak diisi.
+DB_PASS='GANTI_PASSWORD_KUAT_DB' \
+DOMAIN='absensi.103-31-38-106.sslip.io' \
+sudo -E bash scripts/setup-vps.sh
 ```
 
----
+Output akhir: `✅ App sehat di http://localhost:3100`.
+Cek manual: `curl http://localhost:3100/api/health` → `{"status":"ok","db":"up"}`.
 
-## Step 2 — HAPUS DATA LAMA & BUAT DB BARU
-
-> Hanya setelah Step 1 selesai.
-
+Lalu daftarkan PM2 agar auto-start saat reboot:
 ```bash
-pm2 delete all || true
-pm2 save --force
-rm -rf $APP_DIR
-
-# Buat user + database
-sudo -u postgres psql <<EOF
-DROP DATABASE IF EXISTS $DB_NAME;
-DROP USER IF EXISTS $DB_USER;
-CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';
-CREATE DATABASE $DB_NAME OWNER $DB_USER;
-GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
-EOF
-
-# PENTING (PostgreSQL 15+): beri hak pada schema public di DB baru,
-# kalau tidak, "prisma migrate deploy" gagal: permission denied for schema public
-sudo -u postgres psql -d $DB_NAME <<EOF
-GRANT ALL ON SCHEMA public TO $DB_USER;
-ALTER SCHEMA public OWNER TO $DB_USER;
-EOF
-
-echo "DB baru siap."
+pm2 startup     # jalankan baris perintah yang dicetaknya
+pm2 save
 ```
 
----
-
-## Step 3 — Clone kode
-
-```bash
-mkdir -p /var/www
-cd /var/www
-git clone $GIT_REPO grebeg-suro
-cd $APP_DIR
-```
-
----
-
-## Step 4 — Environment (.env)
-
-Generate JWT secret:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
-
-```bash
-cat > $APP_DIR/.env <<EOF
-DATABASE_URL="postgresql://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME?schema=public"
-JWT_SECRET="TEMPEL_HASIL_GENERATE_DI_ATAS"
-SESSION_COOKIE_NAME="grebeg_session"
-
-NEXT_PUBLIC_APP_URL="https://$DOMAIN"
-NEXT_PUBLIC_APP_NAME="Volunteer Grebeg Suro"
-
-# Geofence default (dipakai saat seed). Sesuaikan titik venue.
-EVENT_NAME="Grebeg Suro & Festival Nasional Reog Ponorogo"
-EVENT_LAT="-7.8650"
-EVENT_LONG="111.4690"
-EVENT_RADIUS_METER="150"
-
-# Opsional — Supabase Storage (kalau kosong, selfie disimpan base64 di DB)
-NEXT_PUBLIC_SUPABASE_URL=""
-NEXT_PUBLIC_SUPABASE_ANON_KEY=""
-SUPABASE_SERVICE_ROLE_KEY=""
-SUPABASE_STORAGE_BUCKET="attendance-selfies"
-
-# Opsional — notifikasi Telegram admin
-TELEGRAM_BOT_TOKEN=""
-TELEGRAM_CHAT_ID=""
-EOF
-
-chmod 600 $APP_DIR/.env
-```
-
-> `DATABASE_URL` & `JWT_SECRET` dibaca dari `.env` ini (tidak ada yang hardcode di kode).
-> Next.js memuat `.env` otomatis saat runtime. **PORT** diatur oleh PM2 (Step 6).
-
----
-
-## Step 5 — Install, migrasi DB, build
-
-```bash
-cd $APP_DIR
-
-# JANGAN set NODE_ENV=production di shell di sini — devDependencies (prisma CLI,
-# tsx untuk seed) dibutuhkan saat migrate/seed/build.
-npm ci
-
-npx prisma generate
-npx prisma migrate deploy      # menerapkan migrasi baseline (prisma/migrations/0_init)
-npx prisma db seed             # isi divisi + akun demo (lihat tabel di bawah)
-
-npm run build
-```
-
-> Kalau `npm run build` ke-OOM (4 GB cukup, tapi jaga-jaga), tambah swap:
+> Kalau `npm run build` ke-OOM, tambah swap lalu ulangi:
 > ```bash
-> fallocate -l 2G /swapfile && chmod 600 /swapfile
-> mkswap /swapfile && swapon /swapfile
+> fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
 > echo '/swapfile none swap sw 0 0' >> /etc/fstab
 > ```
 
 ### Akun demo hasil seed
-
 | Peran | Login | Password |
 |-------|-------|----------|
 | Super Admin | `superadmin` | `admin123` |
 | Admin | `admin` | `admin123` |
 | Relawan | `relawan01` | `relawan123` |
-
-> 🔐 **Ganti password akun-akun ini segera** setelah login pertama (lewat panel admin).
+> 🔐 Ganti password ini setelah login pertama.
 
 ---
 
-## Step 6 — Jalankan via PM2 (pakai ecosystem.config.js)
+## Step 3 — (VPS) Nginx vhost subdomain
 
-File `ecosystem.config.js` sudah ada di repo dan mengikat **PORT=3100**.
-
+**Cek dulu siapa pemegang port 80/443:**
 ```bash
-cd $APP_DIR
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup        # jalankan perintah yang muncul (auto-start saat reboot)
-
-pm2 status
-pm2 logs $APP_NAME --lines 30
+ss -tlnp | grep -E ':80|:443'
 ```
 
-Cek internal: `curl http://localhost:$PORT/api/health` → `{"status":"ok","db":"up"}`.
-
----
-
-## Step 7 — Nginx reverse proxy + SELinux
-
+### Kasus A — Nginx native (host) yang pegang 80/443 (atau 80/443 kosong)
 ```bash
-cat > /etc/nginx/conf.d/$APP_NAME.conf <<EOF
-server {
-    listen 80;
-    server_name $DOMAIN 103.31.38.106;
-
-    client_max_body_size 12M;       # upload selfie
-
-    location / {
-        proxy_pass http://127.0.0.1:$PORT;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_cache_bypass \$http_upgrade;
-    }
-}
-EOF
-
-# WAJIB di AlmaLinux: izinkan Nginx connect ke port app (SELinux)
-setsebool -P httpd_can_network_connect 1
-
+cp /var/www/grebeg-suro/deploy/nginx-grebeg.conf /etc/nginx/conf.d/grebeg-suro.conf
+setsebool -P httpd_can_network_connect 1        # WAJIB di AlmaLinux (SELinux)
 nginx -t && systemctl enable --now nginx && systemctl reload nginx
 ```
 
-Sementara bisa dibuka di `http://$DOMAIN` — **tapi kamera/GPS belum jalan sampai HTTPS aktif (Step 9).**
+### Kasus B — Port 80/443 dipegang Nginx **di Docker** (sistem arbitrage)
+Nginx native tidak bisa ikut bind 80/443. Tambahkan **server block** berikut ke konfigurasi Nginx Docker tsb (lalu reload container itu), proxy ke host:
+```nginx
+server {
+    listen 80;
+    server_name absensi.103-31-38-106.sslip.io;
+    client_max_body_size 12M;
+    location / {
+        proxy_pass http://103.31.38.106:3100;   # IP host VPS
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+> Pastikan firewall mengizinkan kontainer mengakses host:3100, atau bind app ke `0.0.0.0` (default Next sudah begitu).
 
 ---
 
-## Step 8 — Firewall (firewalld)
+## Step 4 — (VPS) Firewall
 
 ```bash
 systemctl enable --now firewalld
@@ -258,65 +153,70 @@ firewall-cmd --permanent --add-service=http
 firewall-cmd --permanent --add-service=https
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --reload
-firewall-cmd --list-all
 ```
 
 ---
 
-## Step 9 — HTTPS (WAJIB — agar kamera & GPS berfungsi)
+## Step 5 — (VPS) Cek HTTP
 
-Karena `$DOMAIN` = `103-31-38-106.sslip.io` adalah domain valid yang menunjuk ke IP-mu, Certbot bisa menerbitkan sertifikat asli:
+Buka `http://absensi.103-31-38-106.sslip.io` → landing page muncul.
+(Kamera/GPS belum jalan sampai HTTPS di Step 6.)
 
+---
+
+## Step 6 — (VPS) HTTPS (WAJIB, agar kamera & GPS hidup)
+
+### Kasus A (Nginx native)
 ```bash
 dnf install -y certbot python3-certbot-nginx
-certbot --nginx -d $DOMAIN --redirect -m EMAIL@kamu.com --agree-tos -n
+certbot --nginx -d absensi.103-31-38-106.sslip.io --redirect -m EMAIL@kamu.com --agree-tos -n
 systemctl reload nginx
 ```
+Certbot otomatis menambah `listen 443 ssl` + redirect HTTP→HTTPS.
 
-Certbot otomatis menambah block `listen 443 ssl` + redirect HTTP→HTTPS.
-Buka **https://103-31-38-106.sslip.io** → kamera & GPS sekarang aktif.
+### Kasus B (Nginx Docker)
+Terbitkan sertifikat untuk subdomain pada sistem yang mengelola TLS arbitrage (mis. Certbot/Caddy/Traefik di stack Docker tsb), arahkan ke server block subdomain di atas.
 
-> Auto-renew sudah terpasang via systemd timer. Cek: `systemctl status certbot-renew.timer`.
+Buka **https://absensi.103-31-38-106.sslip.io** → kamera & GPS aktif. ✅
 
 ---
 
-## UPDATE berikutnya (tiap ada perubahan kode)
+## UPDATE berikutnya (ada perubahan kode)
 
-Laptop: `git commit` → `git push`.
-VPS:
-
+Laptop: buat arsip baru (lihat bagian "Membuat arsip" di bawah) → SCP ulang → di VPS:
 ```bash
-cd $APP_DIR
-git pull
-npm ci
-npx prisma migrate deploy      # aman; hanya menerapkan migrasi baru bila ada
-npm run build
-pm2 restart $APP_NAME
-pm2 logs $APP_NAME --lines 30
+cd /var/www/grebeg-suro
+unzip -o /var/www/grebeg-suro-deploy.zip -d .
+bash scripts/update.sh        # npm ci + migrate deploy + build + pm2 restart
+```
+> Kalau nanti pakai GitHub, `scripts/update.sh` juga otomatis `git pull` bila repo punya remote.
+
+### Membuat arsip dari laptop (PowerShell)
+```powershell
+cd C:\Users\Panji\grebeg-suro
+Compress-Archive -Path * -DestinationPath grebeg-suro-deploy.zip -Force `
+  -CompressionLevel Optimal
+# (folder node_modules/.next/.git tidak ikut karena belum ada/di-exclude saat dibuat)
 ```
 
 ---
 
 ## Troubleshooting
 
-| Masalah | Cek |
+| Masalah | Solusi |
 |---|---|
-| Kamera/GPS tidak muncul / "permission denied" | **Belum HTTPS.** Selesaikan Step 9; akses lewat `https://$DOMAIN`, bukan IP/HTTP |
-| 502 Bad Gateway | `pm2 logs $APP_NAME` + `setsebool -P httpd_can_network_connect 1` |
-| `permission denied for schema public` saat migrate | Step 2 bagian GRANT/ALTER SCHEMA public belum dijalankan |
-| `prisma db seed` error `tsx: not found` | Jangan set `NODE_ENV=production` saat `npm ci` (devDeps ke-skip) |
-| DB connection refused | `.env` DATABASE_URL, `systemctl status postgresql`, auth scram (Step 0) |
-| build terbunuh (OOM) | tambah swap (Step 5) |
-| Port bentrok | `ss -tlnp | grep $PORT` lalu kill prosesnya |
-| App mati pasca reboot | `pm2 startup` + `pm2 save` sudah dijalankan? |
-| App jalan di 3000 bukan 3100 | pakai `pm2 start ecosystem.config.js` (bukan `pm2 start npm`) |
+| Kamera/GPS tidak muncul / "permission denied" | Belum HTTPS — selesaikan Step 6, akses lewat `https://`, bukan IP/HTTP |
+| 502 Bad Gateway | `pm2 logs grebeg-suro` + `setsebool -P httpd_can_network_connect 1` |
+| `permission denied for schema public` saat migrate | Skrip sudah `GRANT/ALTER SCHEMA public`; cek user DB benar di `.env` |
+| `tsx: not found` saat seed | Jangan set `NODE_ENV=production` sebelum `npm ci` (skrip sudah `unset NODE_ENV`) |
+| DB connection refused | `.env` DATABASE_URL, `systemctl status postgresql`, auth scram (Step 1) |
+| Port 3100 bentrok | `ss -tlnp | grep 3100`; ganti `PORT` di `ecosystem.config.js` + vhost + `.env` |
+| App jalan di 3000 bukan 3100 | pakai `pm2 start ecosystem.config.js` (skrip sudah benar) |
+| Nginx 80/443 sudah dipakai Docker | pakai **Kasus B** (Step 3 & 6) |
 
 ---
 
-## Rollback
-
-```bash
-sudo -u postgres psql $DB_NAME < /root/backups/NAMAFILE.sql
-tar -xzf /root/backups/app_old_XXXX.tar.gz -C /
-pm2 restart all
-```
+## Catatan keamanan
+- `DATABASE_URL` & `JWT_SECRET` hanya dari `.env` (chmod 600), tidak hardcode.
+- Password akun demo WAJIB diganti setelah login pertama.
+- `JWT_SECRET` di-generate acak 48 byte oleh skrip bila tidak disuplai.
