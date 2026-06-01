@@ -1,0 +1,80 @@
+services:
+  # ---- PostgreSQL ----
+  db:
+    image: postgres:16-alpine
+    container_name: grebeg_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-grebeg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-grebeg_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-grebeg_suro}
+    volumes:
+      - grebeg_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-grebeg}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - grebeg_net
+
+  # ---- Next.js App ----
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grebeg_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-grebeg}:${POSTGRES_PASSWORD:-grebeg_secret}@db:5432/${POSTGRES_DB:-grebeg_suro}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-grebeg_session}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://103-31-38-106.sslip.io}
+      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Volunteer Grebeg Suro}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-attendance-selfies}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      EVENT_NAME: ${EVENT_NAME:-Grebeg Suro & Festival Nasional Reog Ponorogo}
+      EVENT_LAT: ${EVENT_LAT:--7.8650}
+      EVENT_LONG: ${EVENT_LONG:-111.4690}
+      EVENT_RADIUS_METER: ${EVENT_RADIUS_METER:-150}
+      RUN_SEED: ${RUN_SEED:-true}
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks:
+      - grebeg_net
+
+  # ---- Nginx reverse proxy ----
+  nginx:
+    image: nginx:alpine
+    container_name: grebeg_nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    networks:
+      - grebeg_net
+
+volumes:
+  grebeg_pgdata:
+
+networks:
+  grebeg_net:
+    driver: bridge

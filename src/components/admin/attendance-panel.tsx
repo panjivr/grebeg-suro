@@ -1,0 +1,160 @@
+"use client";
+
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Loader2, FileSpreadsheet, FileText, RefreshCw, Radio, ImageIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { getSupabaseBrowser } from "@/lib/supabase";
+import { formatTime, formatDateShort, initials, statusLabels } from "@/lib/utils";
+
+interface AttRecord {
+  id: string;
+  clockIn: string | null;
+  clockOut: string | null;
+  clockInPhoto: string | null;
+  status: string;
+  workDate: string;
+  user: { name: string; profilePhoto: string | null; division: { name: string } | null };
+}
+
+const statusVariant: Record<string, "success" | "warning" | "destructive" | "default" | "secondary"> = {
+  PRESENT: "success",
+  LATE: "warning",
+  ABSENT: "destructive",
+  ON_DUTY: "default",
+};
+
+export function AttendancePanel({ live = false }: { live?: boolean }) {
+  const [records, setRecords] = useState<AttRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const load = useCallback(async () => {
+    const url = live ? `/api/admin/attendance?date=${today}` : `/api/admin/attendance?all=true`;
+    const data = await fetch(url).then((r) => r.json());
+    setRecords(data.records ?? []);
+    setLoading(false);
+  }, [live, today]);
+
+  useEffect(() => {
+    load();
+    if (live) {
+      // Realtime via Supabase if configured, else poll every 15s
+      const supabase = getSupabaseBrowser();
+      if (supabase) {
+        const channel = supabase
+          .channel("attendance-live")
+          .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, () => load())
+          .subscribe();
+        return () => {
+          supabase.removeChannel(channel);
+        };
+      }
+      intervalRef.current = setInterval(load, 15000);
+      return () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+    }
+  }, [live, load]);
+
+  function exportFile(format: "excel" | "pdf") {
+    window.open(`/api/admin/export?format=${format}&date=${today}`, "_blank");
+  }
+
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {live && (
+              <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-400">
+                <Radio className="h-4 w-4 animate-pulse" /> Live
+              </span>
+            )}
+            <h2 className="font-display text-lg font-semibold">
+              {live ? "Monitoring Kehadiran Hari Ini" : "Log Absensi"}
+            </h2>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="ghost" onClick={load}>
+              <RefreshCw className="h-4 w-4" /> Refresh
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => exportFile("excel")}>
+              <FileSpreadsheet className="h-4 w-4" /> Excel
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => exportFile("pdf")}>
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-10 text-muted-foreground">
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Memuat…
+          </div>
+        ) : records.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">Belum ada data absensi.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Relawan</TableHead>
+                <TableHead>Divisi</TableHead>
+                {!live && <TableHead>Tanggal</TableHead>}
+                <TableHead>Masuk</TableHead>
+                <TableHead>Keluar</TableHead>
+                <TableHead>Selfie</TableHead>
+                <TableHead className="text-right">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {records.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        {r.user.profilePhoto && <AvatarImage src={r.user.profilePhoto} />}
+                        <AvatarFallback className="text-xs">{initials(r.user.name)}</AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{r.user.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{r.user.division?.name ?? "-"}</TableCell>
+                  {!live && <TableCell>{formatDateShort(r.workDate)}</TableCell>}
+                  <TableCell className="tabular-nums">{formatTime(r.clockIn)}</TableCell>
+                  <TableCell className="tabular-nums">{formatTime(r.clockOut)}</TableCell>
+                  <TableCell>
+                    {r.clockInPhoto ? (
+                      <a href={r.clockInPhoto} target="_blank" rel="noreferrer">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={r.clockInPhoto} alt="selfie" className="h-8 w-8 rounded-md object-cover ring-1 ring-gold/30" />
+                      </a>
+                    ) : (
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant={statusVariant[r.status] ?? "default"}>
+                      {statusLabels[r.status] ?? r.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

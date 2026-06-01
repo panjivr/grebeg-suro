@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark elegant theme — always dark for cinematic cultural feel */
+    --background: 30 12% 6%;
+    --foreground: 40 30% 96%;
+
+    --card: 30 12% 9%;
+    --card-foreground: 40 30% 96%;
+
+    --popover: 30 14% 8%;
+    --popover-foreground: 40 30% 96%;
+
+    --primary: 43 65% 52%;
+    --primary-foreground: 30 30% 8%;
+
+    --secondary: 30 10% 16%;
+    --secondary-foreground: 40 30% 96%;
+
+    --muted: 30 8% 18%;
+    --muted-foreground: 40 12% 65%;
+
+    --accent: 43 50% 22%;
+    --accent-foreground: 43 80% 80%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 40 18% 18%;
+    --input: 40 18% 18%;
+    --ring: 43 65% 52%;
+
+    --radius: 0.85rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  }
+  .glass-gold {
+    @apply border border-gold/20 bg-gold/[0.04] backdrop-blur-xl;
+  }
+  .text-gradient-gold {
+    @apply bg-gold-gradient bg-clip-text text-transparent;
+  }
+  .gold-glow {
+    box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.45);
+  }
+  .batik-texture {
+    background-image: radial-gradient(
+        circle at 1px 1px,
+        rgba(212, 175, 55, 0.07) 1px,
+        transparent 0
+      );
+    background-size: 22px 22px;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}

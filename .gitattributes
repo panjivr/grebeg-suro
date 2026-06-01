@@ -1,0 +1,12 @@
+# Normalize line endings: store LF in the repo, check out LF on Linux.
+* text=auto eol=lf
+
+# Shell scripts MUST be LF (CRLF breaks the bash interpreter on Linux)
+*.sh text eol=lf
+
+# Binary / generated — leave untouched
+*.png binary
+*.jpg binary
+*.ico binary
+*.webmanifest text eol=lf
+package-lock.json -diff
