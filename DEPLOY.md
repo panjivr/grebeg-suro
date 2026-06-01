@@ -166,16 +166,33 @@ Buka `http://absensi.103-31-38-106.sslip.io` → landing page muncul.
 
 ## Step 6 — (VPS) HTTPS (WAJIB, agar kamera & GPS hidup)
 
-### Kasus A (Nginx native)
-```bash
-dnf install -y certbot python3-certbot-nginx
-certbot --nginx -d absensi.103-31-38-106.sslip.io --redirect -m EMAIL@kamu.com --agree-tos -n
-systemctl reload nginx
-```
-Certbot otomatis menambah `listen 443 ssl` + redirect HTTP→HTTPS.
+> **Cek dulu siapa pemegang 443** untuk menentukan Kasus A atau B:
+> ```bash
+> sudo ss -tlnp | grep ':443'
+> ```
+> Kalau prosesnya `nginx` → **Kasus A**. Kalau `docker-proxy`/`containerd` → **Kasus B**.
 
-### Kasus B (Nginx Docker)
-Terbitkan sertifikat untuk subdomain pada sistem yang mengelola TLS arbitrage (mis. Certbot/Caddy/Traefik di stack Docker tsb), arahkan ke server block subdomain di atas.
+### Kasus A (Nginx native pegang 443)
+```bash
+# 1) vhost subdomain (listen 80) HARUS terpasang dulu — lihat Step 3 Kasus A
+ls /etc/nginx/conf.d/grebeg-suro.conf || \
+  sudo cp /var/www/grebeg-suro/deploy/nginx-grebeg.conf /etc/nginx/conf.d/grebeg-suro.conf
+sudo nginx -t && sudo systemctl reload nginx
+
+# 2) terbitkan cert untuk SUBDOMAIN PERSIS (pakai email asli)
+sudo dnf install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d absensi.103-31-38-106.sslip.io --redirect --agree-tos -m EMAIL_ASLI@kamu.com -n
+
+# 3) verifikasi
+sudo nginx -t && sudo systemctl reload nginx
+curl -I https://absensi.103-31-38-106.sslip.io
+```
+Certbot otomatis menambah blok `listen 443 ssl` (cert di `/etc/letsencrypt/live/absensi.103-31-38-106.sslip.io/`) + redirect 80→443.
+
+> **`NET::ERR_CERT_COMMON_NAME_INVALID`?** Itu artinya 443 sedang menyajikan cert untuk domain ROOT (`103-31-38-106.sslip.io`), bukan subdomain. Penyebab: cert subdomain belum terbit / vhost subdomain belum ada saat certbot jalan. Pastikan langkah 1 dilakukan SEBELUM certbot, lalu jalankan ulang `certbot --nginx -d absensi.103-31-38-106.sslip.io --redirect`. Sertifikat baru akan cocok dengan nama subdomain.
+
+### Kasus B (Nginx 443 di Docker / sistem arbitrage)
+`certbot --nginx` di host **tidak berpengaruh** (yang menyajikan 443 adalah container). Terbitkan cert subdomain pada stack TLS Docker tsb (Certbot/Caddy/Traefik), arahkan ke server block subdomain yang proxy ke `http://103.31.38.106:3100`. Kirim `sudo docker ps` + lokasi config nginx container ke tim dev bila perlu bantuan.
 
 Buka **https://absensi.103-31-38-106.sslip.io** → kamera & GPS aktif. ✅
 
@@ -206,6 +223,8 @@ Compress-Archive -Path * -DestinationPath grebeg-suro-deploy.zip -Force `
 | Masalah | Solusi |
 |---|---|
 | Kamera/GPS tidak muncul / "permission denied" | Belum HTTPS — selesaikan Step 6, akses lewat `https://`, bukan IP/HTTP |
+| `NET::ERR_CERT_COMMON_NAME_INVALID` | Cert 443 untuk domain root, bukan subdomain. Pasang vhost subdomain dulu lalu `certbot --nginx -d absensi.103-31-38-106.sslip.io --redirect` (Step 6 Kasus A). Bila 443 di Docker → Kasus B |
+| Error HSTS tak bisa "proceed" di Chrome | HSTS diwarisi dari domain root (sistem lain), bukan dari app ini. Hilang sendiri begitu cert subdomain valid terpasang |
 | 502 Bad Gateway | `pm2 logs grebeg-suro` + `setsebool -P httpd_can_network_connect 1` |
 | `permission denied for schema public` saat migrate | Skrip sudah `GRANT/ALTER SCHEMA public`; cek user DB benar di `.env` |
 | `tsx: not found` saat seed | Jangan set `NODE_ENV=production` sebelum `npm ci` (skrip sudah `unset NODE_ENV`) |
