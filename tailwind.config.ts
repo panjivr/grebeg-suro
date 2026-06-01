@@ -14,6 +14,10 @@ const config: Config = {
       screens: { "2xl": "1400px" },
     },
     extend: {
+      height: {
+        "13": "3.25rem",
+        "18": "4.5rem",
+      },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "serif"],
