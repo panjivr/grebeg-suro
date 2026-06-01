@@ -36,3 +36,7 @@ yarn-error.log*
 
 # docker
 docker-data/
+
+# deploy artifacts
+*.zip
+*.tar.gz
