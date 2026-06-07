@@ -35,7 +35,7 @@ Pilih salah satu cara:
    ```sql
    INSERT INTO "users" (id, name, username, password, role, is_active, created_at, updated_at)
    VALUES (gen_random_uuid()::text, 'Admin Festival', 'admin',
-           '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4XQ1nQ3sQp1bQ8r3qL8q6m1mGfa',
+           '$2a$10$ogcdh2BJDzhoL48Jzu3wC.p4M4K8O/y9ali05XINAA6vJ9hsH52h.',
            'SUPER_ADMIN', true, now(), now());
 
    INSERT INTO "event_settings" (id, event_name, event_lat, event_long, radius_meter, shift_start, is_active, created_at, updated_at)
