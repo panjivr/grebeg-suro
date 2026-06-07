@@ -10,7 +10,7 @@
 # ============================================================
 set -euo pipefail
 
-DOMAIN="${DOMAIN:-absensi.103-31-38-106.sslip.io}"
+DOMAIN="${DOMAIN:-157-10-253-86.sslip.io}"
 APP_DIR="${APP_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PORT="${PORT:-3100}"
 EMAIL="${EMAIL:?Set EMAIL dulu, mis: EMAIL=kamu@mail.com sudo -E bash scripts/fix-https.sh}"

@@ -73,7 +73,7 @@ npm run dev
 
 ## 🐳 Deployment ke VPS (Docker)
 
-Domain target: **https://103-31-38-106.sslip.io**
+Domain target: **https://157-10-253-86.sslip.io**
 
 ### 1. Siapkan `.env` untuk compose
 ```bash
@@ -81,7 +81,7 @@ cp .env.example .env
 # Wajib di-set:
 #   POSTGRES_PASSWORD=...        (untuk service db)
 #   JWT_SECRET=$(openssl rand -base64 32)
-#   NEXT_PUBLIC_APP_URL=https://103-31-38-106.sslip.io
+#   NEXT_PUBLIC_APP_URL=https://157-10-253-86.sslip.io
 ```
 
 ### 2. Sertifikat TLS (untuk kamera/GPS)
@@ -89,14 +89,14 @@ Letakkan sertifikat di `./certs/`:
 ```bash
 mkdir -p certs
 # Opsi A — Let's Encrypt (disarankan):
-#   certbot certonly --standalone -d 103-31-38-106.sslip.io
-#   cp /etc/letsencrypt/live/103-31-38-106.sslip.io/fullchain.pem certs/
-#   cp /etc/letsencrypt/live/103-31-38-106.sslip.io/privkey.pem  certs/
+#   certbot certonly --standalone -d 157-10-253-86.sslip.io
+#   cp /etc/letsencrypt/live/157-10-253-86.sslip.io/fullchain.pem certs/
+#   cp /etc/letsencrypt/live/157-10-253-86.sslip.io/privkey.pem  certs/
 
 # Opsi B — Self-signed (cepat, browser warning):
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout certs/privkey.pem -out certs/fullchain.pem \
-  -subj "/CN=103-31-38-106.sslip.io"
+  -subj "/CN=157-10-253-86.sslip.io"
 ```
 
 ### 3. Build & jalankan
@@ -106,7 +106,7 @@ docker compose up -d --build
 docker compose logs -f app
 ```
 
-Aplikasi tersedia di **https://103-31-38-106.sslip.io**.
+Aplikasi tersedia di **https://157-10-253-86.sslip.io**.
 Setelah seed pertama, set `RUN_SEED=false` di `.env` agar tidak re-seed.
 
 ### Perintah berguna

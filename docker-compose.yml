@@ -32,7 +32,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-grebeg}:${POSTGRES_PASSWORD:-grebeg_secret}@db:5432/${POSTGRES_DB:-grebeg_suro}?schema=public
       JWT_SECRET: ${JWT_SECRET}
       SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-grebeg_session}
-      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://103-31-38-106.sslip.io}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://157-10-253-86.sslip.io}
       NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Volunteer Grebeg Suro}
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
