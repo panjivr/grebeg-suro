@@ -1,0 +1,18 @@
+# ============================================================
+#  Grebeg Suro — Netlify configuration
+#  Next.js 15 (App Router) + Prisma + Supabase Postgres
+# ============================================================
+
+[build]
+  command = "npm run build"   # = prisma generate && next build
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Hindari prisma mengunduh engine yg tidak perlu saat build
+  PRISMA_CLI_QUERY_ENGINE_TYPE = "library"
+
+# Runtime resmi Next.js untuk Netlify (server components, route handlers,
+# middleware/edge). Netlify meng-install plugin ini otomatis.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
