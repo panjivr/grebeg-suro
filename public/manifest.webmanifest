@@ -1,10 +1,13 @@
 {
-  "name": "Volunteer Grebeg Suro",
+  "name": "Grebeg Suro Ponorogo",
   "short_name": "Grebeg Suro",
-  "description": "Sistem Absensi Relawan Festival Nasional Reog Ponorogo",
+  "description": "Pusat informasi & sistem absensi relawan Grebeg Suro dan Festival Nasional Reog Ponorogo",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0d0a",
-  "theme_color": "#0f0d0a",
-  "icons": []
+  "background_color": "#F5F9FF",
+  "theme_color": "#2184FF",
+  "icons": [
+    { "src": "/brand/icon.png", "type": "image/png", "sizes": "104x104", "purpose": "any" },
+    { "src": "/brand/logo-mark.png", "type": "image/png", "sizes": "256x256", "purpose": "any" }
+  ]
 }

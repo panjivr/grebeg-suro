@@ -128,7 +128,7 @@ export function UsersPanel() {
       <CardContent className="pt-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="font-display text-lg font-semibold">Manajemen Pengguna</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">Manajemen Pengguna</h2>
             <p className="text-sm text-muted-foreground">{users.length} pengguna terdaftar</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -140,7 +140,7 @@ export function UsersPanel() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <UserPlus className="h-5 w-5 text-gold" /> Tambah Pengguna
+                  <UserPlus className="h-5 w-5 text-brand" /> Tambah Pengguna
                 </DialogTitle>
               </DialogHeader>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -218,7 +218,7 @@ export function UsersPanel() {
                       <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => toggleActive(u)} title="Aktif/Nonaktif">
                         <Power className="h-4 w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-red-400" onClick={() => remove(u.id)} title="Hapus">
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-error" onClick={() => remove(u.id)} title="Hapus">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

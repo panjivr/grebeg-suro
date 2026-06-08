@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { AttendanceCapture } from "@/components/attendance-capture";
 import { LogoutButton } from "@/components/logout-button";
+import { BrandLogo } from "@/components/brand-logo";
 import { cn, formatTime, formatDate, formatDateShort, initials, roleLabels, statusLabels } from "@/lib/utils";
 
 interface UserLite {
@@ -99,14 +100,12 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
   return (
     <div className="min-h-screen bg-background">
       {/* Topbar */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold-gradient font-display text-base font-bold text-primary-foreground">
-              G
-            </div>
+          <div className="flex items-center gap-2.5">
+            <BrandLogo size={36} withWordmark={false} />
             <div className="leading-tight">
-              <p className="text-sm font-semibold">Dashboard Relawan</p>
+              <p className="text-sm font-semibold text-ink">Dashboard Relawan</p>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
                 Grebeg Suro
               </p>
@@ -119,16 +118,16 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
       <main className="container space-y-6 py-6">
         {/* Profile card */}
         <Card className="overflow-hidden">
-          <div className="h-20 bg-gradient-to-r from-gold/20 via-gold/5 to-transparent batik-texture" />
+          <div className="h-20 bg-gradient-to-r from-brand/15 via-brand/5 to-transparent grid-texture" />
           <CardContent className="-mt-10 pb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex items-end gap-4">
-                <Avatar className="h-20 w-20 border-4 border-card ring-2 ring-gold/40">
+                <Avatar className="h-20 w-20 border-4 border-card ring-2 ring-brand/30">
                   {user.profilePhoto && <AvatarImage src={user.profilePhoto} alt={user.name} />}
                   <AvatarFallback className="text-xl">{initials(user.name)}</AvatarFallback>
                 </Avatar>
                 <div className="mb-1">
-                  <h1 className="font-display text-2xl font-bold">{user.name}</h1>
+                  <h1 className="font-display text-2xl font-bold text-ink">{user.name}</h1>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
                     <Badge variant="default">{roleLabels[user.role] ?? user.role}</Badge>
                     {user.division && <Badge variant="outline">{user.division.name}</Badge>}
@@ -149,8 +148,8 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-1">
             <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-              <Clock className="mb-3 h-7 w-7 text-gold" />
-              <div className="font-display text-5xl font-bold tabular-nums tracking-tight">
+              <Clock className="mb-3 h-7 w-7 text-brand" />
+              <div className="font-display text-5xl font-bold tabular-nums tracking-tight text-ink">
                 {now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" })}
                 <span className="text-2xl text-muted-foreground">
                   :{now.toLocaleTimeString("id-ID", { second: "2-digit", timeZone: "Asia/Jakarta" }).padStart(2, "0")}
@@ -163,12 +162,12 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
           {/* Clock In/Out summary */}
           <Card className="lg:col-span-2">
             <CardContent className="grid h-full gap-4 py-6 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-                <div className="flex items-center gap-2 text-emerald-400">
+              <div className="rounded-2xl border border-border bg-secondary/50 p-5">
+                <div className="flex items-center gap-2 text-success">
                   <LogIn className="h-5 w-5" />
                   <span className="text-sm font-medium">Clock In</span>
                 </div>
-                <p className="mt-2 font-display text-3xl font-bold tabular-nums">
+                <p className="mt-2 font-display text-3xl font-bold tabular-nums text-ink">
                   {formatTime(today?.clockIn)}
                 </p>
                 <Button
@@ -180,12 +179,12 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
                 </Button>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-                <div className="flex items-center gap-2 text-rose-400">
+              <div className="rounded-2xl border border-border bg-secondary/50 p-5">
+                <div className="flex items-center gap-2 text-error">
                   <LogOutIcon className="h-5 w-5" />
                   <span className="text-sm font-medium">Clock Out</span>
                 </div>
-                <p className="mt-2 font-display text-3xl font-bold tabular-nums">
+                <p className="mt-2 font-display text-3xl font-bold tabular-nums text-ink">
                   {formatTime(today?.clockOut)}
                 </p>
                 <Button
@@ -216,8 +215,8 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
         <Card>
           <CardContent className="pt-6">
             <div className="mb-4 flex items-center gap-2">
-              <History className="h-5 w-5 text-gold" />
-              <h2 className="font-display text-lg font-semibold">Riwayat Kehadiran</h2>
+              <History className="h-5 w-5 text-brand" />
+              <h2 className="font-display text-lg font-semibold text-ink">Riwayat Kehadiran</h2>
             </div>
             {loading ? (
               <div className="flex items-center justify-center py-10 text-muted-foreground">
@@ -240,7 +239,7 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
                 <TableBody>
                   {history.map((r) => (
                     <TableRow key={r.id}>
-                      <TableCell className="font-medium">{formatDateShort(r.workDate)}</TableCell>
+                      <TableCell className="font-medium text-ink">{formatDateShort(r.workDate)}</TableCell>
                       <TableCell className="tabular-nums">{formatTime(r.clockIn)}</TableCell>
                       <TableCell className="tabular-nums">{formatTime(r.clockOut)}</TableCell>
                       <TableCell className="text-right">
@@ -279,12 +278,12 @@ function InfoTile({
   return (
     <Card>
       <CardContent className="flex items-center gap-3 py-4">
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gold/10">
-          <Icon className="h-5 w-5 text-gold" />
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/10">
+          <Icon className="h-5 w-5 text-brand" />
         </div>
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className={cn("truncate text-sm font-medium")}>{value}</p>
+          <p className={cn("truncate text-sm font-medium text-ink")}>{value}</p>
         </div>
       </CardContent>
     </Card>

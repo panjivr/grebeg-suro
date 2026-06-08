@@ -78,11 +78,11 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {live && (
-              <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-400">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-success">
                 <Radio className="h-4 w-4 animate-pulse" /> Live
               </span>
             )}
-            <h2 className="font-display text-lg font-semibold">
+            <h2 className="font-display text-lg font-semibold text-ink">
               {live ? "Monitoring Kehadiran Hari Ini" : "Log Absensi"}
             </h2>
           </div>
@@ -138,7 +138,7 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
                     {r.clockInPhoto ? (
                       <a href={r.clockInPhoto} target="_blank" rel="noreferrer">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={r.clockInPhoto} alt="selfie" className="h-8 w-8 rounded-md object-cover ring-1 ring-gold/30" />
+                        <img src={r.clockInPhoto} alt="selfie" className="h-8 w-8 rounded-md object-cover ring-1 ring-brand/30" />
                       </a>
                     ) : (
                       <ImageIcon className="h-4 w-4 text-muted-foreground" />

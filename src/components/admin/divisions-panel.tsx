@@ -76,7 +76,7 @@ export function DivisionsPanel() {
       <CardContent className="pt-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="font-display text-lg font-semibold">Manajemen Divisi</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">Manajemen Divisi</h2>
             <p className="text-sm text-muted-foreground">{divisions.length} divisi</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -86,7 +86,7 @@ export function DivisionsPanel() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <LayoutGrid className="h-5 w-5 text-gold" /> Tambah Divisi
+                  <LayoutGrid className="h-5 w-5 text-brand" /> Tambah Divisi
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
@@ -113,21 +113,21 @@ export function DivisionsPanel() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {divisions.map((d) => (
-              <div key={d.id} className="group rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+              <div key={d.id} className="group rounded-2xl border border-border bg-secondary/40 p-5 transition-colors hover:border-brand/30">
                 <div className="flex items-start justify-between">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/10">
-                    <LayoutGrid className="h-5 w-5 text-gold" />
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand/10">
+                    <LayoutGrid className="h-5 w-5 text-brand" />
                   </div>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-400 opacity-0 transition-opacity group-hover:opacity-100"
+                    className="h-8 w-8 text-error opacity-0 transition-opacity group-hover:opacity-100"
                     onClick={() => remove(d.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <h3 className="mt-3 font-semibold">{d.name}</h3>
+                <h3 className="mt-3 font-semibold text-ink">{d.name}</h3>
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{d.description ?? "—"}</p>
                 <Badge variant="outline" className="mt-3">{d._count?.users ?? 0} anggota</Badge>
               </div>

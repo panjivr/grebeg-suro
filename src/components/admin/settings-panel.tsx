@@ -86,7 +86,7 @@ export function SettingsPanel() {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div>
-            <h2 className="font-display text-lg font-semibold">Pengaturan Event</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">Pengaturan Event</h2>
             <p className="text-sm text-muted-foreground">Nama event &amp; batas keterlambatan.</p>
           </div>
           <div className="space-y-1.5">
@@ -105,10 +105,10 @@ export function SettingsPanel() {
         <CardContent className="space-y-4 pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-display text-lg font-semibold">Geofence Lokasi</h2>
+              <h2 className="font-display text-lg font-semibold text-ink">Geofence Lokasi</h2>
               <p className="text-sm text-muted-foreground">Titik venue &amp; radius absensi.</p>
             </div>
-            <MapPin className="h-5 w-5 text-gold" />
+            <MapPin className="h-5 w-5 text-brand" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

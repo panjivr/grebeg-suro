@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -9,30 +9,46 @@ const inter = Inter({
   display: "swap",
 });
 
-const playfair = Playfair_Display({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-display",
   display: "swap",
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://grebegsuro.my.id"),
   title: {
-    default: "Volunteer Grebeg Suro — Sistem Absensi Relawan",
-    template: "%s | Volunteer Grebeg Suro",
+    default: "Grebeg Suro Ponorogo — Festival Nasional Reog Ponorogo",
+    template: "%s | Grebeg Suro Ponorogo",
   },
   description:
-    "Sistem Absensi Relawan untuk Grebeg Suro & Festival Nasional Reog Ponorogo. Clock-in/out dengan validasi GPS dan verifikasi selfie.",
-  keywords: ["Grebeg Suro", "Reog Ponorogo", "absensi relawan", "festival nasional"],
-  authors: [{ name: "Panitia Grebeg Suro" }],
+    "Pusat informasi Grebeg Suro Ponorogo: sejarah, rangkaian acara, Festival Nasional Reog Ponorogo, Larungan Risalah Doa Telaga Ngebel, dan sistem absensi relawan resmi.",
+  keywords: [
+    "Grebeg Suro",
+    "Grebeg Suro Ponorogo",
+    "Reog Ponorogo",
+    "Festival Nasional Reog Ponorogo",
+    "Telaga Ngebel",
+    "Warisan Budaya UNESCO",
+    "absensi relawan",
+  ],
+  authors: [{ name: "Panitia Grebeg Suro Ponorogo" }],
+  icons: {
+    icon: "/brand/icon.png",
+    apple: "/brand/logo-mark.png",
+  },
   openGraph: {
-    title: "Volunteer Grebeg Suro",
-    description: "Sistem Absensi Relawan Festival Nasional Reog Ponorogo",
+    title: "Grebeg Suro Ponorogo",
+    description:
+      "Pesta rakyat tahunan Ponorogo menyambut 1 Suro — Festival Nasional Reog Ponorogo & Larungan Telaga Ngebel.",
     type: "website",
+    locale: "id_ID",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f0d0a",
+  themeColor: "#F5F9FF",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -42,8 +58,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
+    <html lang="id" suppressHydrationWarning>
+      <body className={`${inter.variable} ${jakarta.variable} font-sans antialiased`}>
         {children}
         <Toaster
           position="top-center"
