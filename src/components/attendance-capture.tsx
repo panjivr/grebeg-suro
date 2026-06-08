@@ -155,7 +155,7 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-display text-xl">
-            <Camera className="h-5 w-5 text-gold" /> {title}
+            <Camera className="h-5 w-5 text-brand" /> {title}
           </DialogTitle>
           <DialogDescription>
             Ambil selfie &amp; pastikan lokasi Anda di dalam area event.
@@ -163,10 +163,10 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
         </DialogHeader>
 
         {/* Camera / preview */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-white/10 bg-black">
+        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-navy">
           {camError && !photo ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-              <AlertTriangle className="h-10 w-10 text-amber-400" />
+              <AlertTriangle className="h-10 w-10 text-warning" />
               <p className="text-sm text-muted-foreground">{camError}</p>
               <Button size="sm" variant="outline" onClick={startCamera}>
                 <RefreshCw className="h-4 w-4" /> Coba lagi
@@ -185,13 +185,13 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
           )}
           {/* Camera frame guide */}
           {!photo && !camError && (
-            <div className="pointer-events-none absolute inset-6 rounded-full border-2 border-dashed border-gold/40" />
+            <div className="pointer-events-none absolute inset-6 rounded-full border-2 border-dashed border-cyan/70" />
           )}
         </div>
 
         {/* GPS status */}
-        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm">
-          <MapPin className={`h-4 w-4 ${geoStatus === "ok" ? "text-emerald-400" : geoStatus === "error" ? "text-red-400" : "text-gold"}`} />
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-3 text-sm">
+          <MapPin className={`h-4 w-4 ${geoStatus === "ok" ? "text-success" : geoStatus === "error" ? "text-error" : "text-brand"}`} />
           {geoStatus === "loading" && <span className="text-muted-foreground">Mendeteksi lokasi…</span>}
           {geoStatus === "ok" && coords && (
             <span className="text-muted-foreground">
@@ -199,7 +199,7 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
             </span>
           )}
           {geoStatus === "error" && (
-            <span className="text-red-400">Gagal mendeteksi lokasi. Aktifkan GPS.</span>
+            <span className="text-error">Gagal mendeteksi lokasi. Aktifkan GPS.</span>
           )}
           {geoStatus === "error" && (
             <Button size="sm" variant="ghost" className="ml-auto h-7" onClick={fetchLocation}>

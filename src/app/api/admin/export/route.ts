@@ -40,10 +40,10 @@ export async function GET(req: Request) {
     let page = pdf.addPage([595, 842]); // A4
     const font = await pdf.embedFont(StandardFonts.Helvetica);
     const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-    const gold = rgb(0.83, 0.69, 0.22);
+    const brand = rgb(0.129, 0.518, 1);
     let y = 800;
 
-    page.drawText("Laporan Absensi Relawan", { x: 40, y, size: 18, font: bold, color: gold });
+    page.drawText("Laporan Absensi Relawan", { x: 40, y, size: 18, font: bold, color: brand });
     y -= 22;
     page.drawText("Grebeg Suro & Festival Nasional Reog Ponorogo", { x: 40, y, size: 11, font });
     y -= 16;
@@ -54,7 +54,7 @@ export async function GET(req: Request) {
     const cols = [40, 70, 250, 360, 430, 500];
     headers.forEach((h, i) => page.drawText(h, { x: cols[i], y, size: 10, font: bold }));
     y -= 6;
-    page.drawLine({ start: { x: 40, y }, end: { x: 555, y }, thickness: 1, color: gold });
+    page.drawLine({ start: { x: 40, y }, end: { x: 555, y }, thickness: 1, color: brand });
     y -= 16;
 
     for (const row of rows) {
@@ -83,7 +83,7 @@ export async function GET(req: Request) {
 
   ws.mergeCells("A1:G1");
   ws.getCell("A1").value = "Laporan Absensi Relawan — Grebeg Suro";
-  ws.getCell("A1").font = { bold: true, size: 14, color: { argb: "FFB8941F" } };
+  ws.getCell("A1").font = { bold: true, size: 14, color: { argb: "FF00308F" } };
   ws.mergeCells("A2:G2");
   ws.getCell("A2").value = `Tanggal: ${dateLabel}`;
 
@@ -91,7 +91,7 @@ export async function GET(req: Request) {
   const header = ws.addRow(["No", "Nama", "Role", "Divisi", "Clock In", "Clock Out", "Status"]);
   header.font = { bold: true, color: { argb: "FFFFFFFF" } };
   header.eachCell((cell) => {
-    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF917115" } };
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF00308F" } };
   });
 
   rows.forEach((r) => ws.addRow([r.no, r.name, r.role, r.division, r.clockIn, r.clockOut, r.status]));

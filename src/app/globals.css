@@ -4,34 +4,34 @@
 
 @layer base {
   :root {
-    /* Dark elegant theme — always dark for cinematic cultural feel */
-    --background: 30 12% 6%;
-    --foreground: 40 30% 96%;
+    /* ===== Modern premium blue theme (light) ===== */
+    --background: 216 100% 98%; /* #F5F9FF */
+    --foreground: 222 67% 12%; /* #0A1633 heading ink */
 
-    --card: 30 12% 9%;
-    --card-foreground: 40 30% 96%;
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222 67% 12%;
 
-    --popover: 30 14% 8%;
-    --popover-foreground: 40 30% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 67% 12%;
 
-    --primary: 43 65% 52%;
-    --primary-foreground: 30 30% 8%;
+    --primary: 213 100% 56%; /* #2184FF bright blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 10% 16%;
-    --secondary-foreground: 40 30% 96%;
+    --secondary: 217 100% 96%; /* #EAF2FF soft */
+    --secondary-foreground: 220 100% 28%; /* #00308F navy */
 
-    --muted: 30 8% 18%;
-    --muted-foreground: 40 12% 65%;
+    --muted: 217 100% 96%; /* #EAF2FF */
+    --muted-foreground: 218 17% 57%; /* #7E8BA3 muted text */
 
-    --accent: 43 50% 22%;
-    --accent-foreground: 43 80% 80%;
+    --accent: 217 100% 96%;
+    --accent-foreground: 220 100% 28%;
 
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 351 100% 65%; /* #FF4D67 error */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 40 18% 18%;
-    --input: 40 18% 18%;
-    --ring: 43 65% 52%;
+    --border: 219 100% 92%; /* #D6E4FF */
+    --input: 219 100% 92%;
+    --ring: 213 100% 56%;
 
     --radius: 0.85rem;
   }
@@ -45,32 +45,45 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   html {
     scroll-behavior: smooth;
   }
+  ::selection {
+    background: rgba(33, 132, 255, 0.18);
+  }
 }
 
 @layer components {
+  /* Frosted white surface for use on tinted/gradient backgrounds */
   .glass {
-    @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+    @apply border border-white/60 bg-white/70 backdrop-blur-xl;
   }
-  .glass-gold {
-    @apply border border-gold/20 bg-gold/[0.04] backdrop-blur-xl;
+  .glass-brand {
+    @apply border border-brand/15 bg-brand/[0.05] backdrop-blur-xl;
   }
-  .text-gradient-gold {
-    @apply bg-gold-gradient bg-clip-text text-transparent;
+  .text-gradient-brand {
+    background-image: linear-gradient(120deg, #2184ff 0%, #00308f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  .gold-glow {
-    box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.45);
+  .brand-glow {
+    box-shadow: 0 14px 40px -12px rgba(33, 132, 255, 0.55);
   }
+  /* Subtle blue dotted grid texture */
+  .grid-texture,
   .batik-texture {
     background-image: radial-gradient(
-        circle at 1px 1px,
-        rgba(212, 175, 55, 0.07) 1px,
-        transparent 0
-      );
+      circle at 1px 1px,
+      rgba(33, 132, 255, 0.12) 1px,
+      transparent 0
+    );
     background-size: 22px 22px;
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-card;
   }
 }
 

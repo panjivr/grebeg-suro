@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutButton } from "@/components/logout-button";
+import { BrandLogo } from "@/components/brand-logo";
 import { AttendanceTrendChart, DivisionChart } from "@/components/admin/charts";
 import { UsersPanel } from "@/components/admin/users-panel";
 import { DivisionsPanel } from "@/components/admin/divisions-panel";
@@ -54,10 +55,10 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
   const c = stats?.cards;
 
   const statCards = [
-    { label: "Hadir Hari Ini", value: c?.presentToday, icon: UserCheck, tone: "text-emerald-400" },
-    { label: "Terlambat", value: c?.lateToday, icon: Clock4, tone: "text-amber-400" },
-    { label: "Belum Absen", value: c?.absentToday, icon: UserX, tone: "text-rose-400" },
-    { label: "Sedang Bertugas", value: c?.clockedInNow, icon: Activity, tone: "text-gold" },
+    { label: "Hadir Hari Ini", value: c?.presentToday, icon: UserCheck, tone: "text-success" },
+    { label: "Terlambat", value: c?.lateToday, icon: Clock4, tone: "text-warning" },
+    { label: "Belum Absen", value: c?.absentToday, icon: UserX, tone: "text-error" },
+    { label: "Sedang Bertugas", value: c?.clockedInNow, icon: Activity, tone: "text-brand" },
   ];
 
   const miniCards = [
@@ -69,20 +70,18 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold-gradient font-display text-base font-bold text-primary-foreground">
-              G
-            </div>
+          <div className="flex items-center gap-2.5">
+            <BrandLogo size={36} withWordmark={false} />
             <div className="leading-tight">
-              <p className="text-sm font-semibold">Admin Panel</p>
+              <p className="text-sm font-semibold text-ink">Admin Panel</p>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Grebeg Suro</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium">{adminName}</p>
+              <p className="text-sm font-medium text-ink">{adminName}</p>
               <Badge variant="outline" className="text-[10px]">{roleLabels[adminRole] ?? adminRole}</Badge>
             </div>
             <LogoutButton />
@@ -92,7 +91,7 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
 
       <main className="container space-y-6 py-6">
         <div>
-          <h1 className="font-display text-2xl font-bold">Selamat datang, {adminName.split(" ")[0]} 👋</h1>
+          <h1 className="font-display text-2xl font-bold text-ink">Selamat datang, {adminName.split(" ")[0]} 👋</h1>
           <p className="text-sm text-muted-foreground">Pantau kehadiran relawan secara real-time.</p>
         </div>
 
@@ -106,10 +105,10 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
                   {s.value === undefined ? (
                     <Skeleton className="mt-2 h-8 w-12" />
                   ) : (
-                    <p className="mt-1 font-display text-3xl font-bold">{s.value}</p>
+                    <p className="mt-1 font-display text-3xl font-bold text-ink">{s.value}</p>
                   )}
                 </div>
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/[0.03]">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-secondary">
                   <s.icon className={`h-5 w-5 ${s.tone}`} />
                 </div>
               </CardContent>
@@ -138,7 +137,7 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
                     {m.value === undefined ? (
                       <Skeleton className="mt-2 h-7 w-10" />
                     ) : (
-                      <p className="mt-1 font-display text-2xl font-bold text-gradient-gold">{m.value}</p>
+                      <p className="mt-1 font-display text-2xl font-bold text-gradient-brand">{m.value}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -149,8 +148,8 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
               <Card>
                 <CardContent className="pt-6">
                   <div className="mb-4 flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-gold" />
-                    <h2 className="font-display text-lg font-semibold">Tren Kehadiran (7 Hari)</h2>
+                    <TrendingUp className="h-5 w-5 text-brand" />
+                    <h2 className="font-display text-lg font-semibold text-ink">Tren Kehadiran (7 Hari)</h2>
                   </div>
                   {stats ? <AttendanceTrendChart data={stats.trend} /> : <Skeleton className="h-[260px] w-full" />}
                 </CardContent>
@@ -158,8 +157,8 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
               <Card>
                 <CardContent className="pt-6">
                   <div className="mb-4 flex items-center gap-2">
-                    <LayoutGrid className="h-5 w-5 text-gold" />
-                    <h2 className="font-display text-lg font-semibold">Anggota per Divisi</h2>
+                    <LayoutGrid className="h-5 w-5 text-brand" />
+                    <h2 className="font-display text-lg font-semibold text-ink">Anggota per Divisi</h2>
                   </div>
                   {stats ? <DivisionChart data={stats.divisionStats} /> : <Skeleton className="h-[260px] w-full" />}
                 </CardContent>

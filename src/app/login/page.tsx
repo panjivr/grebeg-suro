@@ -1,58 +1,67 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MapPin, Camera, ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
+import { BrandLogo } from "@/components/brand-logo";
 
-export const metadata = { title: "Masuk" };
+export const metadata = { title: "Masuk Absensi Relawan" };
 
 export default function LoginPage() {
   return (
     <main className="relative grid min-h-screen lg:grid-cols-2">
-      {/* Left — cinematic panel */}
-      <div className="relative hidden lg:block">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "linear-gradient(135deg, rgba(15,13,10,0.7), rgba(15,13,10,0.95)), url('https://images.unsplash.com/photo-1604608672516-f1b9b1d37076?q=80&w=2070&auto=format&fit=crop')",
-          }}
-        />
-        <div className="absolute inset-0 batik-texture opacity-60" />
+      {/* Left — brand panel */}
+      <div className="relative hidden overflow-hidden bg-brand-gradient lg:block">
+        <div className="absolute inset-0 grid-texture opacity-40" />
+        <div className="absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-cyan/30 blur-3xl" />
+        <div className="absolute -right-16 bottom-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10 flex h-full flex-col justify-between p-12">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="grid h-11 w-11 place-items-center rounded-xl bg-gold-gradient font-display text-lg font-bold text-primary-foreground">
-              G
-            </div>
-            <span className="font-display text-lg font-semibold text-gold">Grebeg Suro</span>
-          </Link>
+          <BrandLogo size={48} />
           <div>
-            <h2 className="max-w-md font-display text-4xl font-bold leading-tight">
-              Selamat Datang, <span className="text-gradient-gold">Relawan</span>
+            <h2 className="max-w-md font-display text-4xl font-bold leading-tight text-white">
+              Selamat Datang, <span className="text-cyan">Relawan</span>
             </h2>
-            <p className="mt-4 max-w-sm text-muted-foreground">
+            <p className="mt-4 max-w-sm text-white/75">
               Festival Nasional Reog Ponorogo membutuhkan dedikasi Anda. Masuk untuk
-              mencatat kehadiran dan menjalankan tugas.
+              mencatat kehadiran dan menjalankan tugas dengan validasi GPS &amp; selfie.
             </p>
+            <ul className="mt-8 space-y-3">
+              {[
+                { icon: MapPin, label: "Clock-in dengan validasi lokasi" },
+                { icon: Camera, label: "Verifikasi kehadiran via selfie" },
+                { icon: ShieldCheck, label: "Monitoring real-time oleh panitia" },
+              ].map((f) => (
+                <li key={f.label} className="flex items-center gap-3 text-sm text-white/85">
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/15 backdrop-blur">
+                    <f.icon className="h-4 w-4 text-white" />
+                  </span>
+                  {f.label}
+                </li>
+              ))}
+            </ul>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-white/60">
             © {new Date().getFullYear()} Panitia Grebeg Suro Ponorogo
           </p>
         </div>
       </div>
 
       {/* Right — form */}
-      <div className="relative flex items-center justify-center p-6">
-        <div className="absolute inset-0 bg-dark-radial lg:hidden" />
+      <div className="relative flex items-center justify-center bg-background p-6">
+        <div className="absolute inset-0 bg-hero-mesh lg:hidden" />
         <div className="relative w-full max-w-sm">
           <Link
             href="/"
-            className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-gold"
+            className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-brand"
           >
             <ArrowLeft className="h-4 w-4" /> Kembali ke beranda
           </Link>
 
+          <div className="mb-8 lg:hidden">
+            <BrandLogo size={40} />
+          </div>
+
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold">Masuk Absensi</h1>
+            <h1 className="font-display text-3xl font-bold text-ink">Masuk Absensi</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Gunakan username atau nomor telepon yang terdaftar.
             </p>
@@ -62,11 +71,9 @@ export default function LoginPage() {
             <LoginForm />
           </Suspense>
 
-          <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.02] p-4 text-xs text-muted-foreground">
-            <p className="mb-1 font-semibold text-gold">Demo akun:</p>
-            <p>Admin — <code className="text-foreground">admin / admin123</code></p>
-            <p>Relawan — <code className="text-foreground">relawan01 / relawan123</code></p>
-          </div>
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            Akun relawan dibuat &amp; dikelola oleh panitia Grebeg Suro Ponorogo.
+          </p>
         </div>
       </div>
     </main>

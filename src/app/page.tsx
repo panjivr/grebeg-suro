@@ -1,62 +1,88 @@
 import Link from "next/link";
 import {
-  Users,
-  LayoutGrid,
-  CalendarDays,
-  Megaphone,
-  MapPin,
-  Camera,
-  ShieldCheck,
   ArrowRight,
+  Award,
+  CalendarDays,
+  Crown,
+  Drama,
+  Drum,
+  Feather,
+  Flag,
+  Flame,
+  Globe2,
+  HeartHandshake,
+  History,
+  Landmark,
+  MapPin,
+  Music2,
+  Quote,
+  ScrollText,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Swords,
+  Trophy,
+  Users,
+  Waves,
+  Zap,
   Instagram,
   Facebook,
   Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/brand-logo";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 async function getStats() {
   try {
-    const [volunteers, divisions, eo, event] = await Promise.all([
+    const [volunteers, divisions, eo] = await Promise.all([
       prisma.user.count({ where: { role: "VOLUNTEER" } }),
       prisma.division.count(),
       prisma.user.count({ where: { role: "EO" } }),
-      prisma.eventSetting.findFirst({ where: { isActive: true } }),
     ]);
-    return { volunteers, divisions, eo, eventName: event?.eventName };
+    return { volunteers, divisions, eo };
   } catch {
-    return { volunteers: 0, divisions: 0, eo: 0, eventName: undefined };
+    return { volunteers: 0, divisions: 0, eo: 0 };
   }
 }
+
+const NAV = [
+  { href: "#tentang", label: "Tentang" },
+  { href: "#sejarah", label: "Sejarah" },
+  { href: "#rangkaian", label: "Rangkaian Acara" },
+  { href: "#reog", label: "Reog Ponorogo" },
+  { href: "#jadwal", label: "Jadwal 2026" },
+];
 
 export default async function LandingPage() {
   const stats = await getStats();
 
   const statCards = [
-    { icon: Users, label: "Total Relawan", value: stats.volunteers, suffix: "+" },
-    { icon: LayoutGrid, label: "Total Divisi", value: stats.divisions, suffix: "" },
-    { icon: CalendarDays, label: "Durasi Event", value: 7, suffix: " Hari" },
-    { icon: Megaphone, label: "Total EO", value: stats.eo, suffix: "" },
+    { icon: Users, label: "Total Relawan", value: `${stats.volunteers}+` },
+    { icon: Landmark, label: "Total Divisi", value: `${stats.divisions}` },
+    { icon: Sparkles, label: "Total EO", value: `${stats.eo}` },
+    { icon: CalendarDays, label: "Rangkaian Acara 2026", value: "29+" },
   ];
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
       {/* ===== NAVBAR ===== */}
-      <header className="fixed inset-x-0 top-0 z-50">
-        <div className="container flex h-18 items-center justify-between py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold-gradient font-display text-lg font-bold text-primary-foreground">
-              G
-            </div>
-            <div className="leading-tight">
-              <p className="font-display text-sm font-semibold text-gold">Grebeg Suro</p>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                Volunteer System
-              </p>
-            </div>
-          </Link>
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-xl">
+        <div className="container flex h-18 items-center justify-between py-3">
+          <BrandLogo href="/" size={44} />
+          <nav className="hidden items-center gap-7 lg:flex">
+            {NAV.map((n) => (
+              <a
+                key={n.href}
+                href={n.href}
+                className="text-sm font-medium text-body transition-colors hover:text-brand"
+              >
+                {n.label}
+              </a>
+            ))}
+          </nav>
           <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link href="/login">Masuk Absensi</Link>
           </Button>
@@ -64,190 +90,555 @@ export default async function LandingPage() {
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="relative flex min-h-screen items-center justify-center">
-        <div className="absolute inset-0">
-          {/* Cinematic gradient backdrop */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "linear-gradient(to bottom, rgba(15,13,10,0.55), rgba(15,13,10,0.85), #0f0d0a), url('https://images.unsplash.com/photo-1604608672516-f1b9b1d37076?q=80&w=2070&auto=format&fit=crop')",
-            }}
-          />
-          <div className="absolute inset-0 bg-dark-radial" />
-          <div className="absolute inset-0 batik-texture opacity-60" />
-        </div>
+      <section className="relative flex min-h-screen items-center overflow-hidden pt-28 pb-16">
+        <div className="absolute inset-0 bg-hero-mesh" />
+        <div className="absolute -left-20 top-32 h-72 w-72 rounded-full bg-cyan/20 blur-3xl" />
+        <div className="absolute right-0 top-48 h-80 w-80 rounded-full bg-brand/20 blur-3xl" />
+        <div className="absolute inset-0 grid-texture opacity-50" />
 
-        <div className="container relative z-10 flex flex-col items-center pt-24 text-center">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 text-xs font-medium text-gold backdrop-blur animate-fade-up">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-gold" />
-            Festival Nasional Reog Ponorogo
-          </span>
+        <div className="container relative z-10 grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-white/70 px-4 py-1.5 text-xs font-semibold text-brand shadow-soft backdrop-blur animate-fade-up">
+              <Award className="h-3.5 w-3.5" />
+              Reog Ponorogo &mdash; Warisan Budaya Takbenda UNESCO 2024
+            </span>
 
-          <h1
-            className="max-w-4xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-7xl animate-fade-up"
-            style={{ animationDelay: "0.1s" }}
-          >
-            Volunteer <span className="text-gradient-gold">Grebeg Suro</span>
-          </h1>
+            <h1
+              className="mt-6 font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-6xl xl:text-7xl animate-fade-up"
+              style={{ animationDelay: "0.1s" }}
+            >
+              Grebeg Suro <span className="text-gradient-brand">Ponorogo</span>
+            </h1>
 
-          <p
-            className="mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg animate-fade-up"
-            style={{ animationDelay: "0.2s" }}
-          >
-            Gerakan relawan untuk menyukseskan perhelatan budaya terbesar Ponorogo.
-            Satu sistem absensi modern — clock-in dengan validasi GPS &amp; verifikasi
-            selfie, langsung dari smartphone Anda.
-          </p>
+            <p
+              className="mt-6 max-w-xl text-base leading-relaxed text-body sm:text-lg animate-fade-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+              Pesta rakyat tahunan Kabupaten Ponorogo, Jawa Timur, untuk menyambut
+              Tahun Baru Islam 1 Muharram (1 Suro). Dimeriahkan Festival Nasional Reog
+              Ponorogo, pawai lintas sejarah &amp; kirab pusaka, hingga Larungan Risalah
+              Doa di Telaga Ngebel.
+            </p>
 
-          <div
-            className="mt-10 flex flex-col items-center gap-3 sm:flex-row animate-fade-up"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <Button asChild size="lg" className="group">
-              <Link href="/login">
-                Masuk Absensi
-                <ArrowRight className="transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="#tentang">Pelajari Selengkapnya</Link>
-            </Button>
+            <div
+              className="mt-9 flex flex-col items-start gap-3 sm:flex-row animate-fade-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <Button asChild size="lg" className="group">
+                <a href="#tentang">
+                  Jelajahi Informasi
+                  <ArrowRight className="transition-transform group-hover:translate-x-1" />
+                </a>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/login">Masuk Absensi Relawan</Link>
+              </Button>
+            </div>
+
+            <dl
+              className="mt-12 grid max-w-xl grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4 animate-fade-up"
+              style={{ animationDelay: "0.4s" }}
+            >
+              {[
+                { k: "Digagas", v: "1987" },
+                { k: "Menyambut", v: "1 Suro" },
+                { k: "Panggung", v: "Alun-alun" },
+                { k: "Puncak", v: "T. Ngebel" },
+              ].map((f) => (
+                <div key={f.k}>
+                  <dt className="text-xs uppercase tracking-wider text-muted-foreground">{f.k}</dt>
+                  <dd className="mt-1 font-display text-xl font-bold text-ink">{f.v}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
-          <div
-            className="mt-16 grid w-full max-w-3xl grid-cols-3 gap-4 animate-fade-up"
-            style={{ animationDelay: "0.4s" }}
-          >
-            {[
-              { icon: MapPin, label: "Validasi GPS" },
-              { icon: Camera, label: "Verifikasi Selfie" },
-              { icon: ShieldCheck, label: "Real-time Monitoring" },
-            ].map((f) => (
-              <div key={f.label} className="glass flex flex-col items-center gap-2 rounded-2xl p-4">
-                <f.icon className="h-6 w-6 text-gold" />
-                <span className="text-xs text-muted-foreground sm:text-sm">{f.label}</span>
+          {/* Hero emblem card */}
+          <div className="relative mx-auto hidden w-full max-w-sm lg:block animate-fade-up" style={{ animationDelay: "0.25s" }}>
+            <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 shadow-card">
+              <div className="absolute inset-x-0 top-0 h-28 bg-brand-gradient" />
+              <div className="relative flex flex-col items-center pt-6 text-center">
+                <img
+                  src="/brand/logo-mark.png"
+                  alt="Logo Grebeg Suro Ponorogo"
+                  className="h-28 w-auto animate-float drop-shadow-[0_14px_28px_rgba(33,132,255,0.35)]"
+                />
+                <h2 className="mt-5 font-display text-xl font-bold text-ink">Grebeg Suro</h2>
+                <p className="text-sm text-muted-foreground">Pesta Budaya Ponorogo</p>
+                <div className="mt-6 grid w-full grid-cols-3 gap-3">
+                  {[
+                    { icon: Drama, label: "Reog" },
+                    { icon: Waves, label: "Larungan" },
+                    { icon: Crown, label: "Pusaka" },
+                  ].map((b) => (
+                    <div key={b.label} className="rounded-xl border border-border bg-soft/60 p-3">
+                      <b.icon className="mx-auto h-5 w-5 text-brand" />
+                      <span className="mt-1.5 block text-[11px] font-medium text-body">{b.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ===== ABOUT ===== */}
-      <section id="tentang" className="relative py-24">
-        <div className="container">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">
-              Tentang <span className="text-gradient-gold">Gerakan Ini</span>
+      {/* ===== HIGHLIGHT STRIP ===== */}
+      <section className="border-y border-border bg-soft/60">
+        <div className="container grid grid-cols-2 divide-x divide-border md:grid-cols-4">
+          {[
+            { k: "Sejak", v: "1987", d: "Digagas Bupati Soebarkah P.H." },
+            { k: "FNRP Sejak", v: "1995", d: "Festival Nasional Reog" },
+            { k: "Durasi", v: "± 1 Bulan", d: "Mengikuti bulan Muharram" },
+            { k: "Skala", v: "Nasional", d: "Peserta lintas provinsi" },
+          ].map((s, i) => (
+            <div key={i} className="px-5 py-7 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">{s.k}</p>
+              <p className="mt-1 font-display text-2xl font-extrabold text-gradient-brand sm:text-3xl">{s.v}</p>
+              <p
+                className="mt-1 text-xs text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: s.d }}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== TENTANG ===== */}
+      <section id="tentang" className="relative scroll-mt-20 py-24">
+        <div className="container grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div>
+            <SectionTag icon={Star}>Tentang</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Apa itu <span className="text-gradient-brand">Grebeg Suro?</span>
             </h2>
-            <p className="mt-3 text-muted-foreground">
-              Warisan budaya yang dijaga oleh ribuan tangan relawan.
+            <p className="mt-5 leading-relaxed text-body">
+              Grebeg Suro adalah perayaan budaya tahunan masyarakat Ponorogo untuk
+              menyambut datangnya Tahun Baru Islam 1 Muharram, yang dalam penanggalan
+              Jawa disebut 1 Suro. Lebih dari sekadar pesta rakyat, Grebeg Suro menjadi
+              ruang syukur, refleksi spiritual, sekaligus panggung pelestarian jati diri
+              budaya Ponorogo &mdash; terutama kesenian Reog yang melegenda.
+            </p>
+            <p className="mt-4 leading-relaxed text-body">
+              Perhelatan ini menyatukan ritual, seni pertunjukan, dan wisata budaya dalam
+              satu rangkaian besar yang berlangsung hampir sebulan penuh dan menjadi
+              magnet wisatawan dari berbagai daerah.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              { icon: CalendarDays, title: "Menyambut 1 Suro", body: "Penanda pergantian tahun dalam kalender Islam &amp; Jawa." },
+              { icon: HeartHandshake, title: "Wujud Syukur", body: "Doa dan harapan akan berkah serta keselamatan." },
+              { icon: Drama, title: "Pelestarian Reog", body: "Menjaga warisan kesenian khas Ponorogo tetap hidup." },
+              { icon: Globe2, title: "Wisata Budaya", body: "Daya tarik pariwisata berskala nasional." },
+            ].map((c) => (
+              <div key={c.title} className="card-hover rounded-2xl border border-border bg-card p-6 shadow-soft">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand/10">
+                  <c.icon className="h-5 w-5 text-brand" />
+                </div>
+                <h3 className="mt-4 font-display text-base font-semibold text-ink">{c.title}</h3>
+                <p
+                  className="mt-1.5 text-sm leading-relaxed text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: c.body }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SEJARAH ===== */}
+      <section id="sejarah" className="relative scroll-mt-20 overflow-hidden bg-soft/50 py-24">
+        <div className="absolute inset-0 grid-texture opacity-40" />
+        <div className="container relative">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={History} center>Perjalanan Sejarah</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Dari Tirakatan Malam Suro <br className="hidden sm:block" />
+              ke <span className="text-gradient-brand">Pengakuan Dunia</span>
+            </h2>
+          </div>
+
+          <ol className="relative mx-auto mt-14 max-w-3xl space-y-8 before:absolute before:left-[19px] before:top-2 before:h-[calc(100%-1rem)] before:w-0.5 before:bg-border sm:before:left-1/2 sm:before:-translate-x-1/2">
+            {[
+              { year: "Asal-usul", icon: Flame, title: "Tirakatan Malam 1 Suro", body: "Masyarakat Ponorogo, terutama para warok, mengelilingi kota semalam suntuk dan berakhir di Alun-alun Ponorogo." },
+              { year: "1987", icon: Landmark, title: "Lahirnya Grebeg Suro", body: "Bupati Soebarkah Poetra Hadiwirjo memformalkan tradisi ini dan memasukkan kesenian Reog ke dalam rangkaiannya untuk membangkitkan kembali minat generasi muda." },
+              { year: "1993", icon: Waves, title: "Larung Sesaji Telaga Ngebel", body: "Ritual larung di Telaga Ngebel mulai diselenggarakan secara resmi sebagai bagian rangkaian acara." },
+              { year: "1995", icon: Trophy, title: "Festival Nasional Reog Ponorogo", body: "FNRP pertama digelar, mempertemukan grup-grup reog dari berbagai daerah di panggung Alun-alun Ponorogo." },
+              { year: "± 1997", icon: ScrollText, title: "Larung Risalah Doa", body: "Larung Sesaji berganti nama menjadi Larung/Risalah Doa, selaras dengan identitas Ponorogo sebagai Kota Santri." },
+              { year: "2024", icon: Award, title: "Diakui UNESCO", body: "Reog Ponorogo ditetapkan sebagai Warisan Budaya Takbenda UNESCO pada 3 Desember 2024." },
+            ].map((t, i) => (
+              <li key={i} className="relative grid gap-4 sm:grid-cols-2 sm:gap-8">
+                <div className={i % 2 === 0 ? "sm:text-right" : "sm:col-start-2"}>
+                  <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-bold text-brand">
+                      <t.icon className="h-3.5 w-3.5" /> {t.year}
+                    </span>
+                    <h3 className="mt-2 font-display text-lg font-semibold text-ink">{t.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.body}</p>
+                  </div>
+                </div>
+                <span className="absolute left-[11px] top-5 grid h-4 w-4 place-items-center rounded-full border-2 border-brand bg-background sm:left-1/2 sm:-translate-x-1/2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ===== RANGKAIAN ACARA ===== */}
+      <section id="rangkaian" className="scroll-mt-20 py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={CalendarDays} center>Rangkaian Acara</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Empat Mahakarya <span className="text-gradient-brand">dalam Satu Perhelatan</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Rangkaian Grebeg Suro membentang dari prosesi sakral hingga kompetisi seni berskala nasional.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-2">
             {[
               {
-                title: "Reog Ponorogo",
-                body: "Kesenian tradisional ikonik dari Ponorogo, Jawa Timur. Tarian Reog dengan topeng Dadak Merak raksasa adalah simbol keberanian dan kebanggaan budaya nasional Indonesia.",
+                icon: Flag,
+                tag: "Prosesi Pembuka",
+                title: "Pawai Lintas Sejarah & Kirab Pusaka",
+                body: "Diawali kirab pusaka menuju makam Bathara Katong, pendiri Ponorogo. Ratusan peserta berpawai dengan bendi dan kuda hias menyusuri pusat kota, menapaktilasi sejarah panjang Bumi Reog.",
               },
               {
-                title: "Grebeg Suro",
-                body: "Perayaan tahunan menyambut Tahun Baru Islam (1 Suro). Rangkaian Festival Nasional Reog, kirab pusaka, dan larungan menjadi magnet wisata budaya berskala nasional.",
+                icon: Users,
+                tag: "Kaderisasi",
+                title: "Festival Reog Remaja (FRR)",
+                body: "Panggung bagi grup-grup reog usia remaja dan pelajar untuk unjuk kebolehan &mdash; wadah regenerasi seniman reog masa depan.",
               },
               {
-                title: "Gerakan Relawan",
-                body: "Ribuan relawan dari berbagai divisi bahu-membahu — keamanan, konsumsi, medis, dokumentasi — memastikan setiap pertunjukan berjalan lancar dan berkesan.",
+                icon: Trophy,
+                tag: "Puncak Kompetisi",
+                title: "Festival Nasional Reog Ponorogo (FNRP)",
+                body: "Kompetisi reog skala nasional di panggung utama Alun-alun Ponorogo. Diikuti puluhan grup dari berbagai provinsi &mdash; Madiun, Malang, Yogyakarta, Jakarta, hingga Sumatra dan Kalimantan. Digelar sejak 1995.",
               },
-            ].map((c, i) => (
-              <div
-                key={c.title}
-                className="glass-gold group rounded-2xl p-7 transition-transform hover:-translate-y-1"
-              >
-                <div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-gold-gradient font-display text-xl font-bold text-primary-foreground">
-                  {i + 1}
+              {
+                icon: Waves,
+                tag: "Puncak & Penutup",
+                title: "Larungan Risalah Doa — Telaga Ngebel",
+                body: "Tepat pada 1 Suro, dua tumpeng raksasa berisi hasil bumi diarak mengelilingi telaga (± 3 km), didoakan para sesepuh, lalu dilarung ke Telaga Ngebel sebagai wujud syukur dan harapan berkah.",
+              },
+            ].map((c) => (
+              <div key={c.title} className="card-hover group relative overflow-hidden rounded-3xl border border-border bg-card p-7 shadow-soft">
+                <div className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 rounded-full bg-brand/5 transition-transform group-hover:scale-150" />
+                <div className="relative">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-gradient text-white shadow-soft">
+                      <c.icon className="h-6 w-6" />
+                    </div>
+                    <span className="rounded-full bg-soft px-3 py-1 text-xs font-semibold text-brand-700">{c.tag}</span>
+                  </div>
+                  <h3 className="mt-5 font-display text-xl font-bold text-ink">{c.title}</h3>
+                  <p
+                    className="mt-2 text-sm leading-relaxed text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: c.body }}
+                  />
                 </div>
-                <h3 className="mb-2 font-display text-xl font-semibold text-gold">{c.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{c.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== STATISTICS ===== */}
-      <section className="relative py-20">
-        <div className="absolute inset-0 batik-texture opacity-40" />
+      {/* ===== REOG PONOROGO ===== */}
+      <section id="reog" className="relative scroll-mt-20 overflow-hidden py-24">
+        <div className="absolute inset-0 bg-hero-mesh opacity-70" />
         <div className="container relative">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {statCards.map((s) => (
-              <div key={s.label} className="glass rounded-2xl p-6 text-center">
-                <s.icon className="mx-auto mb-3 h-8 w-8 text-gold" />
-                <div className="font-display text-4xl font-bold text-gradient-gold">
-                  {s.value}
-                  {s.suffix}
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={Drama} center>Sang Bintang</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Mengenal <span className="text-gradient-brand">Reog Ponorogo</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Seni pertunjukan yang memadukan tari, musik gamelan, dan mitologi &mdash;
+              cerminan keberanian, kesetiaan, dan kebanggaan masyarakat Ponorogo.
+            </p>
+          </div>
+
+          {/* Dadak Merak highlight */}
+          <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-3">
+            <div className="relative overflow-hidden rounded-3xl bg-brand-gradient p-8 text-white shadow-card lg:col-span-1">
+              <Feather className="h-9 w-9 text-cyan" />
+              <h3 className="mt-4 font-display text-2xl font-bold">Singo Barong &amp; Dadak Merak</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/80">
+                Topeng raksasa berwujud kepala harimau yang dimahkotai rangkaian bulu
+                merak &mdash; ikon utama Reog Ponorogo.
+              </p>
+              <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/20 pt-6">
+                {[
+                  { v: "± 2,25 m", k: "Panjang" },
+                  { v: "50–60 kg", k: "Berat" },
+                  { v: "Digigit", k: "Cara dibawa" },
+                ].map((m) => (
+                  <div key={m.k}>
+                    <p className="font-display text-lg font-bold">{m.v}</p>
+                    <p className="text-[11px] uppercase tracking-wider text-white/70">{m.k}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2">
+              {[
+                { icon: Swords, title: "Warok", body: "Sesepuh berilmu tinggi dan berbudi luhur; lambang kekuatan lahir-batin serta pengayom masyarakat." },
+                { icon: Star, title: "Jathil", body: "Prajurit berkuda yang menari lincah berpasangan di atas kuda kepang, melambangkan ketangkasan keprajuritan." },
+                { icon: Zap, title: "Bujang Ganong", body: "Patih muda (Pujangga Anom) yang enerjik, jenaka, dan akrobatik &mdash; penampilannya selalu dinanti penonton." },
+                { icon: Crown, title: "Prabu Klono Sewandono", body: "Raja sakti dari Kerajaan Bantarangin, pemilik pusaka andalan Pecut Samandiman." },
+              ].map((t) => (
+                <div key={t.title} className="card-hover rounded-2xl border border-border bg-card p-6 shadow-soft">
+                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand/10">
+                    <t.icon className="h-5 w-5 text-brand" />
+                  </div>
+                  <h3 className="mt-4 font-display text-base font-semibold text-ink">{t.title}</h3>
+                  <p
+                    className="mt-1.5 text-sm leading-relaxed text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: t.body }}
+                  />
                 </div>
-                <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
-                  {s.label}
-                </p>
+              ))}
+            </div>
+          </div>
+
+          {/* Music note */}
+          <div className="mt-6 flex flex-col items-center gap-4 rounded-2xl border border-border bg-card/80 p-6 text-center shadow-soft sm:flex-row sm:text-left">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand/10">
+              <Music2 className="h-6 w-6 text-brand" />
+            </div>
+            <p className="text-sm leading-relaxed text-body">
+              <span className="font-semibold text-ink">Iringan musik:</span> pertunjukan
+              Reog hidup dengan gamelan khas Ponorogo &mdash; kendang, ketipung, kenong,
+              gong, angklung, dan <span className="font-medium text-ink">slompret</span>{" "}
+              (terompet) yang melengking khas.
+            </p>
+            <Drum className="hidden h-8 w-8 shrink-0 text-brand/40 sm:block" />
+          </div>
+        </div>
+      </section>
+
+      {/* ===== LEGENDA ===== */}
+      <section className="scroll-mt-20 bg-soft/50 py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={ScrollText} center>Akar Legenda</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Dua Kisah di Balik <span className="text-gradient-brand">Reog</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Asal-usul Reog Ponorogo diwariskan melalui dua versi cerita yang sama-sama melegenda.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 lg:grid-cols-2">
+            {[
+              {
+                tag: "Versi Bantarangin",
+                icon: Crown,
+                title: "Cinta Klono Sewandono & Dewi Songgolangit",
+                body: "Prabu Klono Sewandono dari Kerajaan Bantarangin jatuh hati dan melamar Dewi Songgolangit, putri Kerajaan Kediri. Dalam perjalanan, ia dihadang Singo Barong &mdash; makhluk berkepala harimau bermahkota bulu merak. Pertarungan inilah yang diyakini menjadi cikal bakal tarian Reog.",
+              },
+              {
+                tag: "Versi Ki Ageng Kutu",
+                icon: ShieldCheck,
+                title: "Sindiran untuk Penguasa Majapahit",
+                body: "Pada abad ke-15, Ki Ageng Kutu &mdash; abdi Raja Brawijaya V &mdash; kecewa atas melemahnya pemerintahan Majapahit. Melalui padepokan dan kesenian barongan, ia menciptakan Reog sebagai sindiran: Singo Barong melambangkan raja yang dikendalikan, sementara bulu merak melambangkan pengaruh sang permaisuri.",
+              },
+            ].map((c) => (
+              <div key={c.tag} className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-soft">
+                <Quote className="absolute right-6 top-6 h-12 w-12 text-brand/10" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-brand">
+                  <c.icon className="h-3.5 w-3.5" /> {c.tag}
+                </span>
+                <h3 className="mt-4 font-display text-xl font-bold text-ink">{c.title}</h3>
+                <p
+                  className="mt-3 leading-relaxed text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: c.body }}
+                />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== CTA ===== */}
-      <section className="relative py-24">
+      {/* ===== UNESCO BANNER ===== */}
+      <section className="py-24">
         <div className="container">
-          <div className="relative overflow-hidden rounded-3xl border border-gold/20 bg-gradient-to-br from-gold/10 via-card to-background p-10 text-center sm:p-16">
-            <div className="absolute inset-0 batik-texture opacity-50" />
-            <div className="relative">
-              <h2 className="font-display text-3xl font-bold sm:text-4xl">
-                Siap Bertugas Hari Ini?
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-gradient px-8 py-14 text-center text-white shadow-card sm:px-16">
+            <div className="absolute inset-0 grid-texture opacity-20" />
+            <div className="absolute -left-10 -top-10 h-48 w-48 rounded-full bg-cyan/20 blur-3xl" />
+            <div className="absolute -bottom-12 right-0 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+            <div className="relative mx-auto max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur">
+                <Globe2 className="h-4 w-4" /> UNESCO Intangible Cultural Heritage
+              </span>
+              <h2 className="mt-6 font-display text-3xl font-extrabold sm:text-4xl">
+                Reog Ponorogo Resmi Diakui Dunia
               </h2>
-              <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-                Masuk ke akun relawan Anda dan lakukan clock-in. Pastikan Anda berada di
-                area venue untuk validasi lokasi.
+              <p className="mt-4 leading-relaxed text-white/85">
+                Pada Sidang ke-19 Komite Antarpemerintah untuk Pelindungan Warisan Budaya
+                Takbenda di Asunci&oacute;n, Paraguay, 3 Desember 2024, UNESCO menetapkan
+                Reog Ponorogo sebagai Warisan Budaya Takbenda dalam kategori yang
+                membutuhkan pelindungan mendesak (In Need of Urgent Safeguarding). Reog
+                menjadi elemen budaya takbenda Indonesia ke-14 yang diakui UNESCO.
               </p>
-              <Button asChild size="lg" className="mt-8 animate-pulse-gold">
-                <Link href="/login">
-                  Masuk Absensi
-                  <ArrowRight />
-                </Link>
-              </Button>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                {["3 Desember 2024", "Asunción, Paraguay", "Elemen ke-14 Indonesia"].map((b) => (
+                  <span key={b} className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium backdrop-blur">
+                    {b}
+                  </span>
+                ))}
+              </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== JADWAL 2026 ===== */}
+      <section id="jadwal" className="relative scroll-mt-20 overflow-hidden bg-soft/50 py-24">
+        <div className="absolute inset-0 grid-texture opacity-40" />
+        <div className="container relative">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={CalendarDays} center>Agenda Terkini</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Grebeg Suro 2026 &mdash; <span className="text-gradient-brand">FNRP ke-XXXI</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Lebih dari 29 rangkaian acara digelar sepanjang Juni&ndash;Juli 2026 di
+              Ponorogo. Berikut agenda-agenda utamanya.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-14 max-w-3xl space-y-3">
+            {[
+              { date: "6 Juni 2026", title: "Pembukaan Grebeg Suro, FRR XXII & FNRP XXXI", place: "Panggung Utama Alun-alun Ponorogo", icon: Sparkles },
+              { date: "7–10 Juni 2026", title: "Festival Reog Remaja (FRR) XXII", place: "Alun-alun Ponorogo", icon: Users },
+              { date: "11–14 Juni 2026", title: "Festival Nasional Reog Ponorogo (FNRP) XXXI", place: "Alun-alun Ponorogo", icon: Trophy },
+              { date: "12–15 Juni 2026", title: "Pagelaran Pusaka", place: "Kota Ponorogo", icon: Crown },
+              { date: "Puncak — 1 Suro / 1 Muharram", title: "Larungan Risalah Doa", place: "Telaga Ngebel", icon: Waves },
+            ].map((e) => (
+              <div key={e.title} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-5">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand/10">
+                  <e.icon className="h-5 w-5 text-brand" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-base font-semibold text-ink">{e.title}</p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5" /> {e.place}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-soft px-3 py-1.5 text-xs font-semibold text-brand-700">
+                  {e.date}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="mx-auto mt-6 max-w-3xl text-center text-xs text-muted-foreground">
+            *Jadwal dapat berubah sesuai keputusan panitia. Acara lain meliputi Grebeg
+            Bonsai, Festival Macapat Pelajar, Festival Lukisan, Vespakultural, dan lainnya.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== RELAWAN + STATS ===== */}
+      <section className="py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={HeartHandshake} center>Di Balik Layar</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Digerakkan oleh <span className="text-gradient-brand">Ribuan Relawan</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Di balik megahnya Grebeg Suro, ada relawan dari berbagai divisi &mdash;
+              keamanan, konsumsi, medis, hingga dokumentasi &mdash; yang bahu-membahu
+              menyukseskan setiap perhelatan.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {statCards.map((s) => (
+              <div key={s.label} className="rounded-2xl border border-border bg-card p-6 text-center shadow-soft">
+                <s.icon className="mx-auto mb-3 h-7 w-7 text-brand" />
+                <div className="font-display text-3xl font-extrabold text-gradient-brand">{s.value}</div>
+                <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="mt-12 overflow-hidden rounded-3xl border border-border bg-card p-10 text-center shadow-card sm:p-14">
+            <h3 className="font-display text-2xl font-bold text-ink sm:text-3xl">Relawan Bertugas Hari Ini?</h3>
+            <p className="mx-auto mt-3 max-w-xl text-body">
+              Masuk ke akun relawan Anda untuk melakukan clock-in. Pastikan Anda berada di
+              area venue agar validasi lokasi berhasil.
+            </p>
+            <Button asChild size="lg" className="mt-8 animate-pulse-brand">
+              <Link href="/login">
+                Masuk Absensi Relawan
+                <ArrowRight />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* ===== FOOTER ===== */}
-      <footer className="border-t border-white/10 py-12">
-        <div className="container flex flex-col items-center gap-6 text-center">
-          <div className="flex items-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold-gradient font-display text-lg font-bold text-primary-foreground">
-              G
+      <footer className="border-t border-border bg-soft/60 py-14">
+        <div className="container">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <BrandLogo size={52} />
+            <p className="max-w-md text-sm text-muted-foreground">
+              Pusat informasi &amp; sistem absensi relawan resmi Grebeg Suro dan Festival
+              Nasional Reog Ponorogo.
+            </p>
+            <div className="flex gap-3">
+              {[Instagram, Facebook, Youtube].map((Icon, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  aria-label="Media sosial"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand"
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
             </div>
-            <span className="font-display text-lg font-semibold text-gold">Grebeg Suro</span>
+            <p className="max-w-xl text-[11px] leading-relaxed text-muted-foreground">
+              Informasi dirangkum dari sumber tepercaya: Wikipedia, Pemerintah Kabupaten
+              Ponorogo (ponorogo.go.id), detikcom, Kompas, dan Kemdikbud.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              © {new Date().getFullYear()} Panitia Grebeg Suro Ponorogo. Hak Cipta Dilindungi.
+            </p>
           </div>
-          <p className="max-w-md text-sm text-muted-foreground">
-            Sistem Absensi Relawan resmi Grebeg Suro &amp; Festival Nasional Reog Ponorogo.
-          </p>
-          <div className="flex gap-4">
-            {[Instagram, Facebook, Youtube].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-muted-foreground transition-colors hover:border-gold/40 hover:text-gold"
-              >
-                <Icon className="h-5 w-5" />
-              </a>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Panitia Grebeg Suro Ponorogo. Hak Cipta Dilindungi.
-          </p>
         </div>
       </footer>
     </main>
+  );
+}
+
+function SectionTag({
+  icon: Icon,
+  children,
+  center,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+  center?: boolean;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-brand ${center ? "mx-auto" : ""}`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {children}
+    </span>
   );
 }
