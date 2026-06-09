@@ -229,6 +229,9 @@ export default async function LandingPage() {
                 <img
                   src="/brand/medallion.webp"
                   alt="Medali budaya Grebeg Suro Ponorogo — mandala ikon budaya dengan emblem api Reog"
+                  width={512}
+                  height={513}
+                  decoding="async"
                   className="h-52 w-auto animate-float drop-shadow-[0_18px_30px_rgba(122,14,22,0.28)]"
                 />
                 <h2 className="mt-5 font-display text-xl font-bold text-ink">Grebeg Suro</h2>
