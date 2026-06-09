@@ -25,6 +25,8 @@ import {
   Users,
   Waves,
   Zap,
+  HelpCircle,
+  ChevronDown,
   Instagram,
   Facebook,
   Youtube,
@@ -54,13 +56,79 @@ const NAV = [
   { href: "#rangkaian", label: "Rangkaian Acara" },
   { href: "#reog", label: "Reog Ponorogo" },
   { href: "#jadwal", label: "Jadwal 2026" },
+  { href: "/volunteer-grebeg-suro", label: "Volunteer" },
 ];
+
+const FAQ: { q: string; a: string; href?: string }[] = [
+  {
+    q: "Apa itu Grebeg Suro?",
+    a: "Grebeg Suro adalah perayaan budaya tahunan masyarakat Ponorogo untuk menyambut Tahun Baru Islam 1 Muharram (1 Suro), dimeriahkan Festival Nasional Reog Ponorogo serta Larungan Risalah Doa di Telaga Ngebel.",
+  },
+  {
+    q: "Kapan Grebeg Suro 2026 digelar?",
+    a: "Rangkaian Grebeg Suro 2026 berlangsung sepanjang Juni–Juli 2026, dengan puncak pada 1 Suro / 1 Muharram melalui Larungan Risalah Doa di Telaga Ngebel.",
+  },
+  {
+    q: "Di mana lokasi Festival Nasional Reog Ponorogo?",
+    a: "Panggung utama Festival Nasional Reog Ponorogo (FNRP) berada di Alun-alun Ponorogo, Jawa Timur.",
+  },
+  {
+    q: "Apa itu Volunteer Grebeg Suro dan bagaimana cara bergabung?",
+    a: "Volunteer Grebeg Suro adalah gerakan relawan pemuda Ponorogo yang menjadi penggerak di balik Festival Nasional Reog Ponorogo. Pelajari sejarah dan cara bergabungnya di halaman Volunteer Grebeg Suro.",
+    href: "/volunteer-grebeg-suro",
+  },
+  {
+    q: "Apakah Reog Ponorogo diakui UNESCO?",
+    a: "Ya. Reog Ponorogo ditetapkan sebagai Warisan Budaya Takbenda UNESCO pada 3 Desember 2024.",
+  },
+  {
+    q: "Apa saja rangkaian acara Grebeg Suro?",
+    a: "Pawai Lintas Sejarah & Kirab Pusaka, Festival Reog Remaja (FRR), Festival Nasional Reog Ponorogo (FNRP), dan Larungan Risalah Doa di Telaga Ngebel.",
+  },
+];
+
+const SITE = "https://grebegsuro.my.id";
+
+const eventJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: "Grebeg Suro & Festival Nasional Reog Ponorogo 2026",
+  description:
+    "Pesta rakyat tahunan Ponorogo menyambut 1 Suro, dimeriahkan Festival Nasional Reog Ponorogo (FNRP) ke-XXXI dan Larungan Risalah Doa di Telaga Ngebel.",
+  startDate: "2026-06-06",
+  endDate: "2026-06-26",
+  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  eventStatus: "https://schema.org/EventScheduled",
+  image: [`${SITE}/brand/og.png`],
+  location: {
+    "@type": "Place",
+    name: "Alun-alun Ponorogo",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Ponorogo",
+      addressRegion: "Jawa Timur",
+      addressCountry: "ID",
+    },
+    geo: { "@type": "GeoCoordinates", latitude: -7.865, longitude: 111.469 },
+  },
+  organizer: { "@type": "Organization", name: "Volunteer Grebeg Suro", url: SITE },
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 
 export default async function LandingPage() {
   const stats = await getStats();
 
   const statCards = [
-    { icon: Users, label: "Total Relawan", value: `${stats.volunteers}+` },
+    { icon: Users, label: "Total Volunteer", value: `${stats.volunteers}+` },
     { icon: Landmark, label: "Total Divisi", value: `${stats.divisions}` },
     { icon: Sparkles, label: "Total EO", value: `${stats.eo}` },
     { icon: CalendarDays, label: "Rangkaian Acara 2026", value: "29+" },
@@ -131,7 +199,7 @@ export default async function LandingPage() {
                 </a>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="/login">Masuk Absensi Relawan</Link>
+                <Link href="/login">Masuk Absensi Volunteer</Link>
               </Button>
             </div>
 
@@ -156,12 +224,12 @@ export default async function LandingPage() {
           {/* Hero emblem card */}
           <div className="relative mx-auto hidden w-full max-w-sm lg:block animate-fade-up" style={{ animationDelay: "0.25s" }}>
             <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 shadow-card">
-              <div className="absolute inset-x-0 top-0 h-28 bg-brand-gradient" />
-              <div className="relative flex flex-col items-center pt-6 text-center">
+              <div className="absolute inset-0 bg-soft-radial" />
+              <div className="relative flex flex-col items-center text-center">
                 <img
-                  src="/brand/logo-mark.png"
-                  alt="Logo Grebeg Suro Ponorogo"
-                  className="h-28 w-auto animate-float drop-shadow-[0_14px_28px_rgba(33,132,255,0.35)]"
+                  src="/brand/medallion.webp"
+                  alt="Medali budaya Grebeg Suro Ponorogo — mandala ikon budaya dengan emblem api Reog"
+                  className="h-52 w-auto animate-float drop-shadow-[0_18px_30px_rgba(122,14,22,0.28)]"
                 />
                 <h2 className="mt-5 font-display text-xl font-bold text-ink">Grebeg Suro</h2>
                 <p className="text-sm text-muted-foreground">Pesta Budaya Ponorogo</p>
@@ -518,11 +586,11 @@ export default async function LandingPage() {
 
           <div className="mx-auto mt-14 max-w-3xl space-y-3">
             {[
-              { date: "6 Juni 2026", title: "Pembukaan Grebeg Suro, FRR XXII & FNRP XXXI", place: "Panggung Utama Alun-alun Ponorogo", icon: Sparkles },
-              { date: "7–10 Juni 2026", title: "Festival Reog Remaja (FRR) XXII", place: "Alun-alun Ponorogo", icon: Users },
-              { date: "11–14 Juni 2026", title: "Festival Nasional Reog Ponorogo (FNRP) XXXI", place: "Alun-alun Ponorogo", icon: Trophy },
-              { date: "12–15 Juni 2026", title: "Pagelaran Pusaka", place: "Kota Ponorogo", icon: Crown },
-              { date: "Puncak — 1 Suro / 1 Muharram", title: "Larungan Risalah Doa", place: "Telaga Ngebel", icon: Waves },
+              { date: "6 Juni 2026", iso: "2026-06-06", title: "Pembukaan Grebeg Suro, FRR XXII & FNRP XXXI", place: "Panggung Utama Alun-alun Ponorogo", icon: Sparkles },
+              { date: "7–10 Juni 2026", iso: "2026-06-07", title: "Festival Reog Remaja (FRR) XXII", place: "Alun-alun Ponorogo", icon: Users },
+              { date: "11–14 Juni 2026", iso: "2026-06-11", title: "Festival Nasional Reog Ponorogo (FNRP) XXXI", place: "Alun-alun Ponorogo", icon: Trophy },
+              { date: "12–15 Juni 2026", iso: "2026-06-12", title: "Pagelaran Pusaka", place: "Kota Ponorogo", icon: Crown },
+              { date: "Puncak — 1 Suro / 1 Muharram", iso: "", title: "Larungan Risalah Doa", place: "Telaga Ngebel", icon: Waves },
             ].map((e) => (
               <div key={e.title} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-5">
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand/10">
@@ -535,31 +603,39 @@ export default async function LandingPage() {
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full bg-soft px-3 py-1.5 text-xs font-semibold text-brand-700">
-                  {e.date}
+                  {e.iso ? <time dateTime={e.iso}>{e.date}</time> : e.date}
                 </span>
               </div>
             ))}
           </div>
           <p className="mx-auto mt-6 max-w-3xl text-center text-xs text-muted-foreground">
-            *Jadwal dapat berubah sesuai keputusan panitia. Acara lain meliputi Grebeg
+            *Jadwal dapat berubah sesuai keputusan penyelenggara. Acara lain meliputi Grebeg
             Bonsai, Festival Macapat Pelajar, Festival Lukisan, Vespakultural, dan lainnya.
           </p>
         </div>
       </section>
 
-      {/* ===== RELAWAN + STATS ===== */}
+      {/* ===== VOLUNTEER + STATS ===== */}
       <section className="py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
             <SectionTag icon={HeartHandshake} center>Di Balik Layar</SectionTag>
             <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
-              Digerakkan oleh <span className="text-gradient-brand">Ribuan Relawan</span>
+              Digerakkan oleh <span className="text-gradient-brand">Ribuan Volunteer</span>
             </h2>
             <p className="mt-4 text-body">
-              Di balik megahnya Grebeg Suro, ada relawan dari berbagai divisi &mdash;
-              keamanan, konsumsi, medis, hingga dokumentasi &mdash; yang bahu-membahu
-              menyukseskan setiap perhelatan.
+              Di balik megahnya Grebeg Suro, ada Volunteer Grebeg Suro dari berbagai
+              divisi &mdash; backstage, runner, liaison officer, hospitality, hingga
+              dokumentasi &mdash; yang bahu-membahu menyukseskan setiap perhelatan.
             </p>
+            <div className="mt-7">
+              <Button asChild variant="outline" className="group">
+                <Link href="/volunteer-grebeg-suro">
+                  Pelajari Volunteer Grebeg Suro
+                  <ArrowRight className="transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <div className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -574,17 +650,51 @@ export default async function LandingPage() {
 
           {/* CTA */}
           <div className="mt-12 overflow-hidden rounded-3xl border border-border bg-card p-10 text-center shadow-card sm:p-14">
-            <h3 className="font-display text-2xl font-bold text-ink sm:text-3xl">Relawan Bertugas Hari Ini?</h3>
+            <h3 className="font-display text-2xl font-bold text-ink sm:text-3xl">Volunteer Bertugas Hari Ini?</h3>
             <p className="mx-auto mt-3 max-w-xl text-body">
-              Masuk ke akun relawan Anda untuk melakukan clock-in. Pastikan Anda berada di
+              Masuk ke akun volunteer Anda untuk melakukan clock-in. Pastikan Anda berada di
               area venue agar validasi lokasi berhasil.
             </p>
             <Button asChild size="lg" className="mt-8 animate-pulse-brand">
               <Link href="/login">
-                Masuk Absensi Relawan
+                Masuk Absensi Volunteer
                 <ArrowRight />
               </Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section id="faq" className="scroll-mt-20 border-t border-border py-24">
+        <div className="container max-w-3xl">
+          <div className="text-center">
+            <SectionTag icon={HelpCircle} center>Pertanyaan Umum</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Yang Sering <span className="text-gradient-brand">Ditanyakan</span>
+            </h2>
+          </div>
+          <div className="mt-12 space-y-3">
+            {FAQ.map((f, i) => (
+              <details
+                key={i}
+                className="group rounded-2xl border border-border bg-card p-5 shadow-soft [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-display font-semibold text-ink">
+                  {f.q}
+                  <ChevronDown className="h-5 w-5 shrink-0 text-brand transition-transform group-open:rotate-180" />
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+                {f.href && (
+                  <Link
+                    href={f.href}
+                    className="mt-2 inline-flex text-sm font-medium text-brand hover:underline"
+                  >
+                    Pelajari selengkapnya →
+                  </Link>
+                )}
+              </details>
+            ))}
           </div>
         </div>
       </section>
@@ -595,7 +705,7 @@ export default async function LandingPage() {
           <div className="flex flex-col items-center gap-6 text-center">
             <BrandLogo size={52} />
             <p className="max-w-md text-sm text-muted-foreground">
-              Pusat informasi &amp; sistem absensi relawan resmi Grebeg Suro dan Festival
+              Pusat informasi &amp; sistem absensi Volunteer Grebeg Suro dan Festival
               Nasional Reog Ponorogo.
             </p>
             <div className="flex gap-3">
@@ -615,11 +725,20 @@ export default async function LandingPage() {
               Ponorogo (ponorogo.go.id), detikcom, Kompas, dan Kemdikbud.
             </p>
             <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Panitia Grebeg Suro Ponorogo. Hak Cipta Dilindungi.
+              © {new Date().getFullYear()} Volunteer Grebeg Suro. Hak Cipta Dilindungi.
             </p>
           </div>
         </div>
       </footer>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
     </main>
   );
 }

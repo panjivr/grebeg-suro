@@ -29,25 +29,25 @@ const config: Config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        /* ===== Premium blue brand palette ===== */
+        /* ===== Premium red & gold brand palette (selaras logo Grebeg Suro) ===== */
         brand: {
-          DEFAULT: "#2184FF", // Primary Bright Blue
-          50: "#F5F9FF",
-          100: "#EAF2FF",
-          200: "#D6E4FF",
-          300: "#ADC8FF",
-          400: "#5C95FF",
-          500: "#2184FF",
-          600: "#1A6AD1",
-          700: "#00308F", // Secondary Navy
-          800: "#00194F", // Primary Dark Navy
-          900: "#001236",
+          DEFAULT: "#C1121F", // Merah utama
+          50: "#FDF3F2",
+          100: "#FBE4E2",
+          200: "#F6C6C2",
+          300: "#EC9C97",
+          400: "#DC5C58",
+          500: "#C1121F",
+          600: "#9E1B22",
+          700: "#7A0E16", // Maroon
+          800: "#5C0A12",
+          900: "#42060C",
         },
-        navy: "#00194F",
-        cyan: "#35D6FF", // Accent Cyan
-        ink: "#0A1633", // Heading Text
-        body: "#4B5B7A", // Body Text
-        soft: "#EAF2FF", // Soft Section
+        navy: "#42060C", // maroon paling gelap (dipertahankan namanya)
+        cyan: "#C9A227", // Emas (nilai diubah agar semua class cyan jadi emas)
+        ink: "#0A1633", // Heading text (tetap gelap)
+        body: "#5B4A4A", // Body text (hangat)
+        soft: "#FCEAE7", // Soft section (merah muda hangat)
         success: "#19C37D",
         warning: "#FFB020",
         error: "#FF4D67",
@@ -87,19 +87,19 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(10,22,51,0.04), 0 8px 24px -12px rgba(10,22,51,0.12)",
-        card: "0 1px 2px rgba(10,22,51,0.04), 0 12px 32px -16px rgba(0,49,143,0.18)",
-        glow: "0 12px 36px -10px rgba(33,132,255,0.5)",
+        soft: "0 1px 2px rgba(40,10,12,0.05), 0 8px 24px -12px rgba(40,10,12,0.16)",
+        card: "0 1px 2px rgba(40,10,12,0.05), 0 12px 32px -16px rgba(122,14,22,0.20)",
+        glow: "0 12px 36px -10px rgba(193,18,31,0.5)",
       },
       backgroundImage: {
         "brand-gradient":
-          "linear-gradient(135deg, #2184FF 0%, #1A6AD1 52%, #00308F 100%)",
+          "linear-gradient(135deg, #C1121F 0%, #9E1B22 52%, #7A0E16 100%)",
         "brand-gradient-vivid":
-          "linear-gradient(135deg, #35D6FF 0%, #2184FF 45%, #00308F 100%)",
+          "linear-gradient(135deg, #C9A227 0%, #C1121F 50%, #7A0E16 100%)",
         "hero-mesh":
-          "radial-gradient(40% 55% at 12% 8%, rgba(53,214,255,0.18), transparent 60%), radial-gradient(45% 60% at 88% 0%, rgba(33,132,255,0.20), transparent 60%), radial-gradient(60% 70% at 50% 110%, rgba(0,48,143,0.14), transparent 60%)",
+          "radial-gradient(40% 55% at 12% 8%, rgba(201,162,39,0.18), transparent 60%), radial-gradient(45% 60% at 88% 0%, rgba(193,18,31,0.18), transparent 60%), radial-gradient(60% 70% at 50% 110%, rgba(122,14,22,0.12), transparent 60%)",
         "soft-radial":
-          "radial-gradient(ellipse at top, rgba(33,132,255,0.10), transparent 60%)",
+          "radial-gradient(ellipse at top, rgba(193,18,31,0.10), transparent 60%)",
       },
       keyframes: {
         "accordion-down": {
@@ -115,12 +115,15 @@ const config: Config = {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "pulse-brand": {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(33,132,255,0.45)" },
-          "50%": { boxShadow: "0 0 0 14px rgba(33,132,255,0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(193,18,31,0.45)" },
+          "50%": { boxShadow: "0 0 0 14px rgba(193,18,31,0)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
+        },
+        "spin-slow": {
+          to: { transform: "rotate(360deg)" },
         },
       },
       animation: {
@@ -129,6 +132,7 @@ const config: Config = {
         "fade-up": "fade-up 0.6s ease-out forwards",
         "pulse-brand": "pulse-brand 2s infinite",
         float: "float 6s ease-in-out infinite",
+        "spin-slow": "spin-slow 14s linear infinite",
       },
     },
   },

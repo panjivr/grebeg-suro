@@ -62,8 +62,8 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
   ];
 
   const miniCards = [
-    { label: "Total Relawan", value: c?.totalVolunteers },
-    { label: "Relawan Aktif", value: c?.activeVolunteers },
+    { label: "Total Volunteer", value: c?.totalVolunteers },
+    { label: "Volunteer Aktif", value: c?.activeVolunteers },
     { label: "Total Divisi", value: c?.totalDivisions },
     { label: "Total EO", value: c?.totalEO },
   ];
@@ -92,7 +92,7 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
       <main className="container space-y-6 py-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Selamat datang, {adminName.split(" ")[0]} 👋</h1>
-          <p className="text-sm text-muted-foreground">Pantau kehadiran relawan secara real-time.</p>
+          <p className="text-sm text-muted-foreground">Pantau kehadiran volunteer secara real-time.</p>
         </div>
 
         {/* Primary stat cards */}

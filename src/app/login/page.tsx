@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin, Camera, ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
 import { BrandLogo } from "@/components/brand-logo";
 
-export const metadata = { title: "Masuk Absensi Relawan" };
+export const metadata = { title: "Masuk Absensi Volunteer" };
 
 export default function LoginPage() {
   return (
@@ -18,7 +18,7 @@ export default function LoginPage() {
           <BrandLogo size={48} />
           <div>
             <h2 className="max-w-md font-display text-4xl font-bold leading-tight text-white">
-              Selamat Datang, <span className="text-cyan">Relawan</span>
+              Selamat Datang, <span className="text-cyan">Volunteer</span>
             </h2>
             <p className="mt-4 max-w-sm text-white/75">
               Festival Nasional Reog Ponorogo membutuhkan dedikasi Anda. Masuk untuk
@@ -28,7 +28,7 @@ export default function LoginPage() {
               {[
                 { icon: MapPin, label: "Clock-in dengan validasi lokasi" },
                 { icon: Camera, label: "Verifikasi kehadiran via selfie" },
-                { icon: ShieldCheck, label: "Monitoring real-time oleh panitia" },
+                { icon: ShieldCheck, label: "Monitoring real-time oleh tim Volunteer" },
               ].map((f) => (
                 <li key={f.label} className="flex items-center gap-3 text-sm text-white/85">
                   <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/15 backdrop-blur">
@@ -40,7 +40,7 @@ export default function LoginPage() {
             </ul>
           </div>
           <p className="text-xs text-white/60">
-            © {new Date().getFullYear()} Panitia Grebeg Suro Ponorogo
+            © {new Date().getFullYear()} Volunteer Grebeg Suro
           </p>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function LoginPage() {
           </Suspense>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
-            Akun relawan dibuat &amp; dikelola oleh panitia Grebeg Suro Ponorogo.
+            Akun volunteer dibuat &amp; dikelola oleh tim Volunteer Grebeg Suro.
           </p>
         </div>
       </div>
