@@ -10,9 +10,11 @@ import {
   Users,
   Rocket,
   Quote,
+  Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/brand-logo";
+import { SiteHeader } from "@/components/site-header";
 
 const SITE = "https://grebegsuro.my.id";
 
@@ -102,29 +104,23 @@ const divisi = [
 
 export default function VolunteerPage() {
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-        <div className="container flex h-18 items-center justify-between py-3">
-          <BrandLogo href="/" size={44} />
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4" /> Beranda
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/login">Masuk Absensi</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <main id="main" className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      <SiteHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-20 pb-12">
+      <section className="relative overflow-hidden pt-28 pb-12">
         <div className="absolute inset-0 bg-hero-mesh" />
         <div className="absolute inset-0 grid-texture opacity-40" />
         <div className="container relative max-w-3xl py-12 text-center">
+          <nav aria-label="Breadcrumb" className="mb-6 flex justify-center">
+            <ol className="flex items-center gap-2 text-xs text-muted-foreground">
+              <li>
+                <Link href="/" className="transition-colors hover:text-brand">Beranda</Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li className="font-medium text-brand" aria-current="page">Volunteer Grebeg Suro</li>
+            </ol>
+          </nav>
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-brand">
             <Users className="h-3.5 w-3.5" /> Gerakan Pemuda Ponorogo
           </span>
@@ -135,6 +131,10 @@ export default function VolunteerPage() {
             Penggerak di balik Festival Nasional Reog Ponorogo — gerakan relawan yang
             bekerja tanpa imbalan untuk menjaga budaya Ponorogo tetap hidup dan berjalan
             lebih baik.
+          </p>
+          <p className="mt-5 text-xs text-muted-foreground">
+            Ditulis oleh <span className="font-medium text-body">Tim Volunteer Grebeg Suro</span>{" "}
+            · Diperbarui <time dateTime="2026-06-09">9 Juni 2026</time>
           </p>
         </div>
       </section>
@@ -245,7 +245,7 @@ export default function VolunteerPage() {
                 variant="outline"
                 className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
               >
-                <a href="https://www.instagram.com/grebegsuroponorogo" target="_blank" rel="noreferrer">
+                <a href="https://www.instagram.com/volunteer.grebegsuro.png" target="_blank" rel="noreferrer">
                   Ikuti Kanal Resmi
                 </a>
               </Button>
@@ -264,6 +264,15 @@ export default function VolunteerPage() {
       <footer className="border-t border-border bg-soft/60 py-12">
         <div className="container flex flex-col items-center gap-4 text-center">
           <BrandLogo size={48} />
+          <a
+            href="https://www.instagram.com/volunteer.grebegsuro.png"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram Volunteer Grebeg Suro"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Volunteer Grebeg Suro. Hak Cipta Dilindungi.
           </p>

@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { VolunteerDashboard } from "@/components/volunteer-dashboard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Dashboard Volunteer" };
+export const metadata = {
+  title: "Dashboard Volunteer",
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();

@@ -87,7 +87,7 @@ const siteJsonLd = {
       logo: { "@type": "ImageObject", url: `${SITE}/brand/logo.png` },
       description:
         "Gerakan relawan pemuda Ponorogo penggerak di balik Festival Nasional Reog Ponorogo & Grebeg Suro.",
-      sameAs: ["https://www.instagram.com/grebegsuroponorogo"],
+      sameAs: ["https://www.instagram.com/volunteer.grebegsuro.png"],
     },
     {
       "@type": "WebSite",
@@ -106,6 +106,12 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={`${inter.variable} ${jakarta.variable} font-sans antialiased`}>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:font-medium focus:text-white focus:shadow-card"
+        >
+          Lewati ke konten
+        </a>
         {children}
         <Toaster
           position="top-center"

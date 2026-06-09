@@ -3,7 +3,10 @@ import { getCurrentUser, isAdminRole } from "@/lib/auth";
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Admin Dashboard" };
+export const metadata = {
+  title: "Admin Dashboard",
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminPage() {
   const user = await getCurrentUser();
