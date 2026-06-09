@@ -28,11 +28,11 @@ import {
   HelpCircle,
   ChevronDown,
   Instagram,
-  Facebook,
-  Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/brand-logo";
+import { SiteHeader } from "@/components/site-header";
+import { NAV } from "@/components/nav-links";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -49,15 +49,6 @@ async function getStats() {
     return { volunteers: 0, divisions: 0, eo: 0 };
   }
 }
-
-const NAV = [
-  { href: "#tentang", label: "Tentang" },
-  { href: "#sejarah", label: "Sejarah" },
-  { href: "#rangkaian", label: "Rangkaian Acara" },
-  { href: "#reog", label: "Reog Ponorogo" },
-  { href: "#jadwal", label: "Jadwal 2026" },
-  { href: "/volunteer-grebeg-suro", label: "Volunteer" },
-];
 
 const FAQ: { q: string; a: string; href?: string }[] = [
   {
@@ -89,29 +80,89 @@ const FAQ: { q: string; a: string; href?: string }[] = [
 
 const SITE = "https://grebegsuro.my.id";
 
+const venueAlun = {
+  "@type": "Place",
+  name: "Alun-alun Ponorogo",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Ponorogo",
+    addressRegion: "Jawa Timur",
+    addressCountry: "ID",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: -7.865, longitude: 111.469 },
+};
+
+const venueNgebel = {
+  "@type": ["Place", "TouristAttraction"],
+  name: "Telaga Ngebel",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Ngebel, Ponorogo",
+    addressRegion: "Jawa Timur",
+    addressCountry: "ID",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: -7.8175, longitude: 111.676 },
+};
+
 const eventJsonLd = {
   "@context": "https://schema.org",
   "@type": "Event",
+  "@id": `${SITE}/#event-2026`,
   name: "Grebeg Suro & Festival Nasional Reog Ponorogo 2026",
   description:
     "Pesta rakyat tahunan Ponorogo menyambut 1 Suro, dimeriahkan Festival Nasional Reog Ponorogo (FNRP) ke-XXXI dan Larungan Risalah Doa di Telaga Ngebel.",
   startDate: "2026-06-06",
   endDate: "2026-06-26",
+  inLanguage: "id-ID",
+  url: SITE,
+  keywords:
+    "Grebeg Suro, Festival Nasional Reog Ponorogo, FNRP 2026, Reog Ponorogo, Telaga Ngebel",
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
   eventStatus: "https://schema.org/EventScheduled",
   image: [`${SITE}/brand/og.png`],
-  location: {
-    "@type": "Place",
-    name: "Alun-alun Ponorogo",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Ponorogo",
-      addressRegion: "Jawa Timur",
-      addressCountry: "ID",
-    },
-    geo: { "@type": "GeoCoordinates", latitude: -7.865, longitude: 111.469 },
-  },
+  location: venueAlun,
   organizer: { "@type": "Organization", name: "Volunteer Grebeg Suro", url: SITE },
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "IDR",
+    availability: "https://schema.org/InStock",
+    url: SITE,
+    validFrom: "2026-01-01",
+  },
+  subEvent: [
+    {
+      "@type": "Event",
+      name: "Pembukaan Grebeg Suro, FRR XXII & FNRP XXXI",
+      startDate: "2026-06-06",
+      eventStatus: "https://schema.org/EventScheduled",
+      location: venueAlun,
+    },
+    {
+      "@type": "Event",
+      name: "Festival Reog Remaja (FRR) XXII",
+      startDate: "2026-06-07",
+      endDate: "2026-06-10",
+      eventStatus: "https://schema.org/EventScheduled",
+      location: venueAlun,
+    },
+    {
+      "@type": "Event",
+      name: "Festival Nasional Reog Ponorogo (FNRP) XXXI",
+      startDate: "2026-06-11",
+      endDate: "2026-06-14",
+      eventStatus: "https://schema.org/EventScheduled",
+      location: venueAlun,
+    },
+    {
+      "@type": "Event",
+      name: "Larungan Risalah Doa",
+      description: "Puncak Grebeg Suro pada 1 Suro / 1 Muharram.",
+      startDate: "2026-06-26",
+      eventStatus: "https://schema.org/EventScheduled",
+      location: venueNgebel,
+    },
+  ],
 };
 
 const faqJsonLd = {
@@ -122,6 +173,21 @@ const faqJsonLd = {
     name: f.q,
     acceptedAnswer: { "@type": "Answer", text: f.a },
   })),
+};
+
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${SITE}/#webpage`,
+  url: SITE,
+  name: "Grebeg Suro Ponorogo 2026 — Festival Nasional Reog Ponorogo",
+  description:
+    "Pusat informasi Grebeg Suro Ponorogo 2026: sejarah, jadwal, rangkaian acara, Festival Nasional Reog Ponorogo, dan Volunteer Grebeg Suro.",
+  inLanguage: "id-ID",
+  isPartOf: { "@id": `${SITE}/#website` },
+  primaryImageOfPage: { "@type": "ImageObject", url: `${SITE}/brand/og.png` },
+  about: { "@id": `${SITE}/#event-2026` },
+  dateModified: "2026-06-09",
 };
 
 export default async function LandingPage() {
@@ -135,27 +201,8 @@ export default async function LandingPage() {
   ];
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
-      {/* ===== NAVBAR ===== */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-        <div className="container flex h-18 items-center justify-between py-3">
-          <BrandLogo href="/" size={44} />
-          <nav className="hidden items-center gap-7 lg:flex">
-            {NAV.map((n) => (
-              <a
-                key={n.href}
-                href={n.href}
-                className="text-sm font-medium text-body transition-colors hover:text-brand"
-              >
-                {n.label}
-              </a>
-            ))}
-          </nav>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href="/login">Masuk Absensi</Link>
-          </Button>
-        </div>
-      </header>
+    <main id="main" className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      <SiteHeader activeSpy />
 
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-screen items-center overflow-hidden pt-28 pb-16">
@@ -229,8 +276,9 @@ export default async function LandingPage() {
                 <img
                   src="/brand/medallion.webp"
                   alt="Medali budaya Grebeg Suro Ponorogo — mandala ikon budaya dengan emblem api Reog"
-                  width={512}
-                  height={513}
+                  width={460}
+                  height={461}
+                  loading="lazy"
                   decoding="async"
                   className="h-52 w-auto animate-float drop-shadow-[0_18px_30px_rgba(122,14,22,0.28)]"
                 />
@@ -681,6 +729,7 @@ export default async function LandingPage() {
             {FAQ.map((f, i) => (
               <details
                 key={i}
+                open={i === 0}
                 className="group rounded-2xl border border-border bg-card p-5 shadow-soft [&_summary::-webkit-details-marker]:hidden"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-display font-semibold text-ink">
@@ -703,32 +752,85 @@ export default async function LandingPage() {
       </section>
 
       {/* ===== FOOTER ===== */}
-      <footer className="border-t border-border bg-soft/60 py-14">
-        <div className="container">
-          <div className="flex flex-col items-center gap-6 text-center">
-            <BrandLogo size={52} />
-            <p className="max-w-md text-sm text-muted-foreground">
-              Pusat informasi &amp; sistem absensi Volunteer Grebeg Suro dan Festival
-              Nasional Reog Ponorogo.
-            </p>
-            <div className="flex gap-3">
-              {[Instagram, Facebook, Youtube].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label="Media sosial"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand"
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
+      <footer className="border-t border-border bg-soft/60">
+        <div className="container py-14">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <BrandLogo size={52} />
+              <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+                Pusat informasi &amp; sistem absensi Volunteer Grebeg Suro dan Festival
+                Nasional Reog Ponorogo.
+              </p>
+              <a
+                href="https://www.instagram.com/volunteer.grebegsuro.png"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram Volunteer Grebeg Suro"
+                className="mt-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
             </div>
-            <p className="max-w-xl text-[11px] leading-relaxed text-muted-foreground">
-              Informasi dirangkum dari sumber tepercaya: Wikipedia, Pemerintah Kabupaten
-              Ponorogo (ponorogo.go.id), detikcom, Kompas, dan Kemdikbud.
-            </p>
+
+            <nav aria-label="Tautan footer">
+              <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-ink">Jelajahi</h2>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                {NAV.map((n) => (
+                  <li key={n.href}>
+                    <a href={n.href} className="text-muted-foreground transition-colors hover:text-brand">
+                      {n.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div>
+              <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-ink">Kontak &amp; Lokasi</h2>
+              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <li>
+                  <a
+                    href="https://www.instagram.com/volunteer.grebegsuro.png"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 transition-colors hover:text-brand"
+                  >
+                    <Instagram className="h-4 w-4" /> @volunteer.grebegsuro.png
+                  </a>
+                </li>
+                <li className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  <span>Alun-alun Ponorogo &amp; Telaga Ngebel, Kabupaten Ponorogo, Jawa Timur</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-ink">Sumber Informasi</h2>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                {[
+                  { label: "Wikipedia", href: "https://id.wikipedia.org/wiki/Grebeg_Suro" },
+                  { label: "Pemkab Ponorogo", href: "https://ponorogo.go.id" },
+                  { label: "detikcom", href: "https://www.detik.com" },
+                  { label: "Kompas", href: "https://www.kompas.com" },
+                  { label: "Kemdikbud", href: "https://www.kemdikbud.go.id" },
+                ].map((s) => (
+                  <li key={s.label}>
+                    <a href={s.href} target="_blank" rel="noreferrer" className="text-muted-foreground transition-colors hover:text-brand">
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-center sm:flex-row sm:text-left">
             <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} Volunteer Grebeg Suro. Hak Cipta Dilindungi.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Terakhir diperbarui <time dateTime="2026-06-09">9 Juni 2026</time>
             </p>
           </div>
         </div>
@@ -741,6 +843,10 @@ export default async function LandingPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
       />
     </main>
   );

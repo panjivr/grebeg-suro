@@ -2,13 +2,32 @@
   "name": "Grebeg Suro Ponorogo",
   "short_name": "Grebeg Suro",
   "description": "Pusat informasi & sistem absensi Volunteer Grebeg Suro dan Festival Nasional Reog Ponorogo",
+  "lang": "id",
+  "dir": "ltr",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#FFFDF8",
   "theme_color": "#7A0E16",
+  "categories": ["events", "education", "lifestyle"],
   "icons": [
     { "src": "/brand/icon.png", "type": "image/png", "sizes": "104x104", "purpose": "any" },
     { "src": "/brand/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
     { "src": "/brand/logo-mark.png", "type": "image/png", "sizes": "256x256", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Masuk Absensi",
+      "short_name": "Absensi",
+      "url": "/login",
+      "description": "Masuk ke sistem absensi volunteer"
+    },
+    {
+      "name": "Volunteer Grebeg Suro",
+      "short_name": "Volunteer",
+      "url": "/volunteer-grebeg-suro",
+      "description": "Sejarah & cara bergabung Volunteer Grebeg Suro"
+    }
   ]
 }

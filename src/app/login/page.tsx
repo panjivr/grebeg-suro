@@ -4,11 +4,16 @@ import { ArrowLeft, MapPin, Camera, ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
 import { BrandLogo } from "@/components/brand-logo";
 
-export const metadata = { title: "Masuk Absensi Volunteer" };
+export const metadata = {
+  title: "Masuk Absensi Volunteer",
+  description:
+    "Halaman masuk untuk volunteer terdaftar Grebeg Suro — clock-in/out kehadiran dengan validasi GPS & selfie.",
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage() {
   return (
-    <main className="relative grid min-h-screen lg:grid-cols-2">
+    <main id="main" className="relative grid min-h-screen lg:grid-cols-2">
       {/* Left — brand panel */}
       <div className="relative hidden overflow-hidden bg-brand-gradient lg:block">
         <div className="absolute inset-0 grid-texture opacity-40" />
