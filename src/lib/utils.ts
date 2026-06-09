@@ -48,7 +48,7 @@ export function initials(name: string): string {
 }
 
 export const roleLabels: Record<string, string> = {
-  VOLUNTEER: "Relawan",
+  VOLUNTEER: "Volunteer",
   EO: "Event Organizer",
   COORDINATOR: "Koordinator",
   ADMIN: "Admin",

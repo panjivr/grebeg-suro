@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    /* ===== Modern premium blue theme (light) ===== */
-    --background: 216 100% 98%; /* #F5F9FF */
-    --foreground: 222 67% 12%; /* #0A1633 heading ink */
+    /* ===== Premium red & gold theme (light, selaras logo) ===== */
+    --background: 24 43% 97%; /* ivory hangat #FBF6F2 */
+    --foreground: 222 67% 12%; /* heading ink (tetap gelap) */
 
     --card: 0 0% 100%; /* #FFFFFF */
     --card-foreground: 222 67% 12%;
@@ -14,24 +14,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 67% 12%;
 
-    --primary: 213 100% 56%; /* #2184FF bright blue */
+    --primary: 356 83% 41%; /* #C1121F merah */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 100% 96%; /* #EAF2FF soft */
-    --secondary-foreground: 220 100% 28%; /* #00308F navy */
+    --secondary: 9 77% 95%; /* #FCEAE7 soft */
+    --secondary-foreground: 356 80% 27%; /* #7A0E16 maroon */
 
-    --muted: 217 100% 96%; /* #EAF2FF */
-    --muted-foreground: 218 17% 57%; /* #7E8BA3 muted text */
+    --muted: 9 65% 96%;
+    --muted-foreground: 350 8% 50%; /* abu hangat */
 
-    --accent: 217 100% 96%;
-    --accent-foreground: 220 100% 28%;
+    --accent: 9 77% 95%;
+    --accent-foreground: 356 80% 27%;
 
-    --destructive: 351 100% 65%; /* #FF4D67 error */
+    --destructive: 0 72% 51%; /* #DC2626 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 219 100% 92%; /* #D6E4FF */
-    --input: 219 100% 92%;
-    --ring: 213 100% 56%;
+    --border: 9 49% 89%; /* #F1DAD6 */
+    --input: 9 49% 89%;
+    --ring: 356 83% 41%;
 
     --radius: 0.85rem;
   }
@@ -51,12 +51,12 @@
     scroll-behavior: smooth;
   }
   ::selection {
-    background: rgba(33, 132, 255, 0.18);
+    background: rgba(193, 18, 31, 0.15);
   }
 }
 
 @layer components {
-  /* Frosted white surface for use on tinted/gradient backgrounds */
+  /* Frosted white surface untuk dipakai di atas latar bertekstur/gradien */
   .glass {
     @apply border border-white/60 bg-white/70 backdrop-blur-xl;
   }
@@ -64,20 +64,20 @@
     @apply border border-brand/15 bg-brand/[0.05] backdrop-blur-xl;
   }
   .text-gradient-brand {
-    background-image: linear-gradient(120deg, #2184ff 0%, #00308f 100%);
+    background-image: linear-gradient(120deg, #c1121f 0%, #7a0e16 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .brand-glow {
-    box-shadow: 0 14px 40px -12px rgba(33, 132, 255, 0.55);
+    box-shadow: 0 14px 40px -12px rgba(193, 18, 31, 0.45);
   }
-  /* Subtle blue dotted grid texture */
+  /* Tekstur titik halus merah */
   .grid-texture,
   .batik-texture {
     background-image: radial-gradient(
       circle at 1px 1px,
-      rgba(33, 132, 255, 0.12) 1px,
+      rgba(193, 18, 31, 0.1) 1px,
       transparent 0
     );
     background-size: 22px 22px;

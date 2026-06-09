@@ -71,6 +71,13 @@ export function SettingsPanel() {
     }
   }
 
+  const hasCoords =
+    Number.isFinite(form.eventLat) &&
+    Number.isFinite(form.eventLong) &&
+    !(form.eventLat === 0 && form.eventLong === 0);
+  const mapsEmbed = `https://maps.google.com/maps?q=${form.eventLat},${form.eventLong}&z=16&hl=id&output=embed`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${form.eventLat},${form.eventLong}`;
+
   if (loading) {
     return (
       <Card>
@@ -123,10 +130,39 @@ export function SettingsPanel() {
           <Button variant="outline" size="sm" onClick={useMyLocation} className="w-full">
             <Crosshair className="h-4 w-4" /> Gunakan Lokasi Saya
           </Button>
+
+          <div className="space-y-2">
+            <Label>Pratinjau Lokasi</Label>
+            {hasCoords ? (
+              <div className="overflow-hidden rounded-xl border border-border">
+                <iframe
+                  key={`${form.eventLat},${form.eventLong}`}
+                  title="Pratinjau lokasi venue"
+                  src={mapsEmbed}
+                  className="h-56 w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            ) : (
+              <p className="rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+                Isi koordinat atau tekan &ldquo;Gunakan Lokasi Saya&rdquo; untuk melihat peta.
+              </p>
+            )}
+            <a
+              href={mapsLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex text-sm font-medium text-brand hover:underline"
+            >
+              Buka di Google Maps
+            </a>
+          </div>
+
           <div className="space-y-1.5">
             <Label>Radius (meter)</Label>
             <Input type="number" value={form.radiusMeter} onChange={(e) => setForm({ ...form, radiusMeter: Number(e.target.value) })} />
-            <p className="text-xs text-muted-foreground">Relawan harus dalam radius ini untuk clock-in/out.</p>
+            <p className="text-xs text-muted-foreground">Volunteer harus dalam radius ini untuk clock-in/out.</p>
           </div>
         </CardContent>
       </Card>

@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Loader2, FileSpreadsheet, FileText, RefreshCw, Radio, ImageIcon } from "lucide-react";
+import { Loader2, FileSpreadsheet, FileText, RefreshCw, Radio, ImageIcon, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -38,7 +44,25 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
   const [records, setRecords] = useState<AttRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [preview, setPreview] = useState<{ url: string; name: string; date: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  async function downloadPhoto(url: string, filename: string) {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  }
 
   const load = useCallback(async () => {
     const url = live ? `/api/admin/attendance?date=${today}` : `/api/admin/attendance?all=true`;
@@ -73,6 +97,7 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
   }
 
   return (
+    <>
     <Card>
       <CardContent className="pt-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -109,7 +134,7 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Relawan</TableHead>
+                <TableHead>Volunteer</TableHead>
                 <TableHead>Divisi</TableHead>
                 {!live && <TableHead>Tanggal</TableHead>}
                 <TableHead>Masuk</TableHead>
@@ -136,10 +161,17 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
                   <TableCell className="tabular-nums">{formatTime(r.clockOut)}</TableCell>
                   <TableCell>
                     {r.clockInPhoto ? (
-                      <a href={r.clockInPhoto} target="_blank" rel="noreferrer">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPreview({ url: r.clockInPhoto!, name: r.user.name, date: r.workDate })
+                        }
+                        className="rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        title="Lihat foto absensi"
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={r.clockInPhoto} alt="selfie" className="h-8 w-8 rounded-md object-cover ring-1 ring-brand/30" />
-                      </a>
+                        <img src={r.clockInPhoto} alt={`Selfie ${r.user.name}`} className="h-8 w-8 rounded-md object-cover ring-1 ring-brand/30" />
+                      </button>
                     ) : (
                       <ImageIcon className="h-4 w-4 text-muted-foreground" />
                     )}
@@ -156,5 +188,34 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
         )}
       </CardContent>
     </Card>
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Foto Absensi — {preview?.name}</DialogTitle>
+          </DialogHeader>
+          {preview && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={preview.url}
+                alt={`Selfie ${preview.name}`}
+                className="w-full rounded-xl border border-border object-contain"
+              />
+              <Button
+                onClick={() =>
+                  downloadPhoto(
+                    preview.url,
+                    `${preview.name.replace(/\s+/g, "_")}-${preview.date.slice(0, 10)}-clockin.jpg`
+                  )
+                }
+              >
+                <Download /> Unduh Foto
+              </Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

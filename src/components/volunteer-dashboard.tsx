@@ -105,7 +105,7 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
           <div className="flex items-center gap-2.5">
             <BrandLogo size={36} withWordmark={false} />
             <div className="leading-tight">
-              <p className="text-sm font-semibold text-ink">Dashboard Relawan</p>
+              <p className="text-sm font-semibold text-ink">Dashboard Volunteer</p>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
                 Grebeg Suro
               </p>
