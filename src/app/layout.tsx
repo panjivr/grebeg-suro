@@ -76,15 +76,28 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-const orgJsonLd = {
+const siteJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Volunteer Grebeg Suro",
-  url: SITE,
-  logo: `${SITE}/brand/logo.png`,
-  description:
-    "Gerakan relawan pemuda Ponorogo penggerak di balik Festival Nasional Reog Ponorogo & Grebeg Suro.",
-  sameAs: ["https://www.instagram.com/grebegsuroponorogo"],
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE}/#organization`,
+      name: "Volunteer Grebeg Suro",
+      url: SITE,
+      logo: { "@type": "ImageObject", url: `${SITE}/brand/logo.png` },
+      description:
+        "Gerakan relawan pemuda Ponorogo penggerak di balik Festival Nasional Reog Ponorogo & Grebeg Suro.",
+      sameAs: ["https://www.instagram.com/grebegsuroponorogo"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE}/#website`,
+      url: SITE,
+      name: "Grebeg Suro Ponorogo",
+      inLanguage: "id-ID",
+      publisher: { "@id": `${SITE}/#organization` },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -104,7 +117,7 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
       </body>
     </html>

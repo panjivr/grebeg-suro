@@ -49,6 +49,20 @@ const articleJsonLd = {
     "Sejarah Volunteer Grebeg Suro: dari keresahan pemuda pecinta Reog (2016) hingga gerakan terstruktur (2022), divisi, dan cara bergabung.",
 };
 
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Beranda", item: SITE },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Volunteer Grebeg Suro",
+      item: `${SITE}/volunteer-grebeg-suro`,
+    },
+  ],
+};
+
 const sections = [
   {
     icon: Flame,
@@ -259,6 +273,10 @@ export default function VolunteerPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
     </main>
   );

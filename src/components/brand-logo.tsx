@@ -34,6 +34,7 @@ export function BrandLogo({
       alt="Grebeg Suro Ponorogo — Festival Nasional Reog Ponorogo"
       style={style}
       draggable={false}
+      decoding="async"
       className={cn("select-none", withWordmark ? "w-auto" : "shrink-0", className)}
     />
   );
