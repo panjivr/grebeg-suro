@@ -27,6 +27,7 @@ import {
   Zap,
   HelpCircle,
   ChevronDown,
+  PlayCircle,
   Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -175,6 +176,23 @@ const faqJsonLd = {
   })),
 };
 
+// Video dokumentasi (Google Drive embed — diputar langsung di browser pengunjung)
+const VIDEO_EMBED =
+  "https://drive.google.com/file/d/153eFmDfxbWniCmjqPWO4EdyDVinGUrXc/preview";
+
+const videoJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  name: "Cuplikan Grebeg Suro Ponorogo",
+  description:
+    "Video dokumentasi suasana Grebeg Suro dan Festival Nasional Reog Ponorogo, Jawa Timur.",
+  thumbnailUrl: [`${SITE}/brand/og.png`],
+  uploadDate: "2026-06-10",
+  embedUrl: VIDEO_EMBED,
+  inLanguage: "id-ID",
+  publisher: { "@type": "Organization", name: "Volunteer Grebeg Suro", url: SITE },
+};
+
 const webPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -187,7 +205,7 @@ const webPageJsonLd = {
   isPartOf: { "@id": `${SITE}/#website` },
   primaryImageOfPage: { "@type": "ImageObject", url: `${SITE}/brand/og.png` },
   about: { "@id": `${SITE}/#event-2026` },
-  dateModified: "2026-06-09",
+  dateModified: "2026-06-10",
 };
 
 export default async function LandingPage() {
@@ -320,6 +338,41 @@ export default async function LandingPage() {
               />
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ===== VIDEO ===== */}
+      <section id="video" className="relative scroll-mt-20 py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={PlayCircle} center>Galeri Video</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Cuplikan <span className="text-gradient-brand">Grebeg Suro</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Rasakan atmosfer Grebeg Suro dan Festival Nasional Reog Ponorogo melalui
+              video dokumentasi berikut.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 max-w-4xl">
+            <div className="overflow-hidden rounded-3xl border border-border bg-navy shadow-card">
+              <div className="relative aspect-video">
+                <iframe
+                  src={VIDEO_EMBED}
+                  title="Video cuplikan Grebeg Suro Ponorogo"
+                  className="absolute inset-0 h-full w-full"
+                  loading="lazy"
+                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+              Dokumentasi Volunteer Grebeg Suro.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -830,7 +883,7 @@ export default async function LandingPage() {
               © {new Date().getFullYear()} Volunteer Grebeg Suro. Hak Cipta Dilindungi.
             </p>
             <p className="text-xs text-muted-foreground">
-              Terakhir diperbarui <time dateTime="2026-06-09">9 Juni 2026</time>
+              Terakhir diperbarui <time dateTime="2026-06-10">10 Juni 2026</time>
             </p>
           </div>
         </div>
@@ -847,6 +900,10 @@ export default async function LandingPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
       />
     </main>
   );
