@@ -28,6 +28,9 @@ import {
   HelpCircle,
   ChevronDown,
   PlayCircle,
+  Ticket,
+  Megaphone,
+  Shirt,
   Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -368,7 +371,7 @@ export default async function LandingPage() {
 
         <div className="container relative z-10 grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-white/70 px-4 py-1.5 text-xs font-semibold text-brand shadow-soft backdrop-blur animate-fade-up">
+            <span className="glass inline-flex items-center gap-2 rounded-full border-brand/30 px-4 py-1.5 text-xs font-semibold text-brand animate-fade-up">
               <Award className="h-3.5 w-3.5" />
               Reog Ponorogo &mdash; Warisan Budaya Takbenda UNESCO 2024
             </span>
@@ -644,7 +647,7 @@ export default async function LandingPage() {
                     <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-gradient text-white shadow-soft">
                       <c.icon className="h-6 w-6" />
                     </div>
-                    <span className="rounded-full bg-soft px-3 py-1 text-xs font-semibold text-brand-700">{c.tag}</span>
+                    <span className="rounded-full bg-soft px-3 py-1 text-xs font-semibold text-cyan">{c.tag}</span>
                   </div>
                   <h3 className="mt-5 font-display text-xl font-bold text-ink">{c.title}</h3>
                   <p
@@ -834,7 +837,7 @@ export default async function LandingPage() {
                   key={e.name}
                   className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-soft"
                 >
-                  <span className="shrink-0 rounded-md bg-soft px-2.5 py-1 text-xs font-bold text-brand-700">
+                  <span className="shrink-0 rounded-md bg-soft px-2.5 py-1 text-xs font-bold text-cyan">
                     {e.date}
                   </span>
                   <span className="text-sm font-medium text-ink">{e.name}</span>
@@ -867,6 +870,122 @@ export default async function LandingPage() {
           <p className="mx-auto mt-10 max-w-3xl text-center text-xs text-muted-foreground">
             *Jadwal &amp; nomor urut tampil dapat berubah sesuai keputusan penyelenggara.
             Data dirangkum dari poster resmi Grebeg Suro 2026.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== TIKET ===== */}
+      <section id="tiket" className="relative scroll-mt-20 py-24">
+        <div className="container">
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-border bg-brand-gradient px-8 py-14 text-center text-white shadow-card sm:px-16">
+            <div className="absolute inset-0 grid-texture opacity-20" />
+            <div className="absolute -left-10 -top-10 h-48 w-48 rounded-full bg-cyan/25 blur-3xl" />
+            <div className="absolute -bottom-12 right-0 h-56 w-56 rounded-full bg-purple/40 blur-3xl" />
+            <div className="relative mx-auto max-w-2xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur">
+                <Ticket className="h-4 w-4" /> Tiket Online
+              </span>
+              <h2 className="mt-6 font-display text-3xl font-extrabold sm:text-4xl">
+                Tiket Festival Nasional Reog Ponorogo XXXI
+              </h2>
+              <p className="mt-4 leading-relaxed text-white/85">
+                Penjualan tiket online dibuka{" "}
+                <span className="font-semibold">Minggu, 7 Juni 2026</span> pukul{" "}
+                <span className="font-semibold">20.00 WIB</span>. Tersedia tiga kategori:
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                {["Reguler", "VIP", "VVIP"].map((k) => (
+                  <span key={k} className="rounded-full bg-white/15 px-5 py-2 text-sm font-semibold backdrop-blur">
+                    {k}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-8">
+                <a
+                  href="https://reogtix.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex h-13 items-center justify-center gap-2 rounded-xl bg-white px-8 text-base font-semibold text-brand shadow-soft transition hover:bg-white/90"
+                >
+                  Beli Tiket di ReogTix
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </div>
+              <p className="mt-4 text-xs text-white/70">
+                Resmi melalui ReogTix &mdash; https://ReogTix.com
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== HIMBAUAN ===== */}
+      <section id="himbauan" className="relative scroll-mt-20 overflow-hidden bg-soft/40 py-24">
+        <div className="absolute inset-0 grid-texture opacity-30" />
+        <div className="container relative">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={Megaphone} center>Himbauan</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Himbauan Perayaan <span className="text-gradient-brand">Grebeg Suro 2026</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Imbauan resmi Pemerintah Kabupaten Ponorogo untuk menyemarakkan Grebeg Suro 2026.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
+            {[
+              {
+                icon: Flag,
+                title: "Pasang Umbul-umbul",
+                body: "Memasang umbul-umbul kesemarakan dan keindahan di masing-masing lingkungan OPD / Satuan Kerja / Kantor.",
+                when: "1–30 Juni 2026",
+                href: "",
+                hrefLabel: "",
+              },
+              {
+                icon: Megaphone,
+                title: "Pasang Spanduk",
+                body: "Memasang spanduk bertema “Bergandeng Erat, Bergerak Cepat, Ponorogo Hebat”.",
+                when: "1–30 Juni 2026",
+                href: "https://s.id/bannerGS2026",
+                hrefLabel: "Template: s.id/bannerGS2026",
+              },
+              {
+                icon: Shirt,
+                title: "Pakaian Khas Ponorogo",
+                body: "Karyawan/karyawati mengenakan Pakaian Khas Ponorogo — Bapak: Penadon & Blangkon Gadung Melati; Ibu: Penadon Wanita.",
+                when: "6–15 Juni 2026",
+                href: "",
+                hrefLabel: "",
+              },
+            ].map((h) => (
+              <div key={h.title} className="card-hover rounded-2xl border border-border bg-card p-7 shadow-soft">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white shadow-soft">
+                    <h.icon className="h-5 w-5" />
+                  </div>
+                  <span className="rounded-full bg-soft px-3 py-1 text-xs font-semibold text-cyan">
+                    {h.when}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-display text-lg font-bold text-ink">{h.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{h.body}</p>
+                {h.href && (
+                  <a
+                    href={h.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block text-sm font-medium text-brand hover:underline"
+                  >
+                    {h.hrefLabel}
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="mx-auto mt-8 max-w-3xl text-center text-xs text-muted-foreground">
+            Sumber: Pemerintah Kabupaten Ponorogo · ponorogo.go.id
           </p>
         </div>
       </section>

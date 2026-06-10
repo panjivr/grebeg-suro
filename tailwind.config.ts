@@ -29,25 +29,27 @@ const config: Config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        /* ===== Premium red & gold brand palette (selaras logo Grebeg Suro) ===== */
+        /* ===== Cinematic cyber-ethnic festival palette (Grebeg Suro 2026) ===== */
         brand: {
-          DEFAULT: "#C1121F", // Merah utama
-          50: "#FDF3F2",
-          100: "#FBE4E2",
-          200: "#F6C6C2",
-          300: "#EC9C97",
-          400: "#DC5C58",
-          500: "#C1121F",
-          600: "#9E1B22",
-          700: "#7A0E16", // Maroon
-          800: "#5C0A12",
-          900: "#42060C",
+          DEFAULT: "#1F6DFF", // Neon blue highlight
+          50: "#EAF2FF",
+          100: "#C9DCFF",
+          200: "#9CC0FF",
+          300: "#5E97FF",
+          400: "#3B82FF",
+          500: "#1F6DFF",
+          600: "#1857D6",
+          700: "#1442A8",
+          800: "#0E2E73",
+          900: "#081B44",
         },
-        navy: "#42060C", // maroon paling gelap (dipertahankan namanya)
-        cyan: "#C9A227", // Emas (nilai diubah agar semua class cyan jadi emas)
-        ink: "#0A1633", // Heading text (tetap gelap)
-        body: "#5B4A4A", // Body text (hangat)
-        soft: "#FCEAE7", // Soft section (merah muda hangat)
+        navy: "#050816", // Primary dark background
+        cyan: "#12E0D3", // Cyan peacock accent
+        purple: "#6B3CC9", // Purple glow
+        culture: "#C21E2B", // Cultural red accent
+        ink: "#F5F7FF", // Primary text (terang)
+        body: "#C9D4FF", // Secondary text (terang)
+        soft: "#081B44", // Surface / band gelap
         success: "#19C37D",
         warning: "#FFB020",
         error: "#FF4D67",
@@ -87,19 +89,19 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(40,10,12,0.05), 0 8px 24px -12px rgba(40,10,12,0.16)",
-        card: "0 1px 2px rgba(40,10,12,0.05), 0 12px 32px -16px rgba(122,14,22,0.20)",
-        glow: "0 12px 36px -10px rgba(193,18,31,0.5)",
+        soft: "0 1px 2px rgba(0,0,0,0.5), 0 8px 24px -12px rgba(0,0,0,0.7)",
+        card: "0 1px 2px rgba(0,0,0,0.5), 0 18px 44px -18px rgba(0,0,0,0.8), 0 0 0 1px rgba(31,109,255,0.06)",
+        glow: "0 0 40px -6px rgba(31,109,255,0.6)",
       },
       backgroundImage: {
         "brand-gradient":
-          "linear-gradient(135deg, #C1121F 0%, #9E1B22 52%, #7A0E16 100%)",
+          "linear-gradient(135deg, #1F6DFF 0%, #6B3CC9 100%)",
         "brand-gradient-vivid":
-          "linear-gradient(135deg, #C9A227 0%, #C1121F 50%, #7A0E16 100%)",
+          "linear-gradient(135deg, #12E0D3 0%, #1F6DFF 55%, #6B3CC9 100%)",
         "hero-mesh":
-          "radial-gradient(40% 55% at 12% 8%, rgba(201,162,39,0.18), transparent 60%), radial-gradient(45% 60% at 88% 0%, rgba(193,18,31,0.18), transparent 60%), radial-gradient(60% 70% at 50% 110%, rgba(122,14,22,0.12), transparent 60%)",
+          "radial-gradient(45% 60% at 12% 8%, rgba(18,224,211,0.18), transparent 60%), radial-gradient(45% 60% at 88% 0%, rgba(31,109,255,0.24), transparent 60%), radial-gradient(60% 70% at 50% 112%, rgba(107,60,201,0.22), transparent 60%)",
         "soft-radial":
-          "radial-gradient(ellipse at top, rgba(193,18,31,0.10), transparent 60%)",
+          "radial-gradient(ellipse at top, rgba(31,109,255,0.18), transparent 60%)",
       },
       keyframes: {
         "accordion-down": {
@@ -115,8 +117,8 @@ const config: Config = {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "pulse-brand": {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(193,18,31,0.45)" },
-          "50%": { boxShadow: "0 0 0 14px rgba(193,18,31,0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(31,109,255,0.5)" },
+          "50%": { boxShadow: "0 0 0 14px rgba(31,109,255,0)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
