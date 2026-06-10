@@ -208,6 +208,143 @@ const webPageJsonLd = {
   dateModified: "2026-06-10",
 };
 
+// ===== Jadwal & peserta Grebeg Suro 2026 (transkrip poster resmi) =====
+const AGENDA_2026: { date: string; name: string }[] = [
+  { date: "19–20 Mei", name: "Simaan Al-Qur'an Rabu Pahing" },
+  { date: "30 Mei", name: "Festival Pencak Silat “Jawara Bumi Warok Ponorogo”" },
+  { date: "3 Juni", name: "Istighosah dan Dzikir Maulidurrasul bersama Jamaah Al Hikmah" },
+  { date: "3–9 Juni", name: "Grebeg Bonsai Bumi Reog 2026" },
+  { date: "6 Juni", name: "Upacara Pembukaan Grebeg Suro, FRR XXII & FNRP XXXI 2026" },
+  { date: "7 Juni", name: "Lomba Burung Perkutut Grebeg Suro Cup 2026" },
+  { date: "7–16 Juni", name: "Pameran Bonsai “Samandiman Bonsai Club”" },
+  { date: "7–10 Juni", name: "Festival Reog Remaja (FRR) XXII" },
+  { date: "9–10 Juni", name: "Festival Macapat Pelajar se-Kabupaten Ponorogo" },
+  { date: "10–15 Juni", name: "Pameran Lukisan" },
+  { date: "11–14 Juni", name: "Festival Nasional Reog Ponorogo (FNRP) XXXI" },
+  { date: "12–15 Juni", name: "Pagelaran Pusaka" },
+  { date: "13 Juni", name: "Vespakultural" },
+  { date: "13–14 Juni", name: "Parade Sepeda Onthel" },
+  { date: "14 Juni", name: "Ziarah Makam" },
+  { date: "14 Juni", name: "Lomba & Pameran Burung Berkicau" },
+  { date: "14 Juni", name: "Bedol Pusaka didahului dengan Macapat" },
+  { date: "15 Juni", name: "Karnaval Keroncong Ponorogo 24 Jam Season II" },
+  { date: "15 Juni", name: "Kirab Pusaka, Pawai Lintas Sejarah, dan Jamasan Pusaka" },
+  { date: "15 Juni", name: "Upacara Penutupan Grebeg Suro & Pengumuman Hasil FRR XXII dan FNRP XXXI 2026" },
+  { date: "15 Juni", name: "Wayang Kulit Malam 1 Suro" },
+  { date: "15 Juni", name: "Laku Tirakatan" },
+  { date: "16 Juni", name: "Larungan Telaga Ngebel" },
+  { date: "20–21 Juni", name: "Mataraman #2 Grebeg Suro Rockfest 2026" },
+  { date: "25–28 Juni", name: "Grebeg Suro Adventure Offroad VII Tingkat Nasional" },
+  { date: "27–28 Juni", name: "Grebeg Suro Jatim Racing Series 2026" },
+  { date: "5 Juli", name: "Grebeg Suro Adventure Trail" },
+  { date: "8 Juli", name: "Grebeg Suro Tutup Suran" },
+  { date: "13 Juli", name: "Simaan Molakatan" },
+];
+
+type Peserta = [no: string, nama: string, asal: string];
+
+const FRR_PESERTA: { day: string; list: Peserta[] }[] = [
+  {
+    day: "Minggu, 7 Juni 2026",
+    list: [
+      ["02", "Singo Anurogo Anom", "SMPN 1 Ngrayun"],
+      ["03", "Sardula Siswa Winasis", "SMPN 2 Badegan"],
+      ["04", "Singo Bayi Djoyo Manggolo", "SMPN 3 Ponorogo"],
+      ["05", "Singo Manggolo", "Kontingen se-Kecamatan Sukorejo"],
+      ["06", "Taruna Manggala", "SMPN 1 Bungkal"],
+    ],
+  },
+  {
+    day: "Senin, 8 Juni 2026",
+    list: [
+      ["07", "Jaya Manggala", "SMPN 2 Ponorogo"],
+      ["08", "Simo Endro Wijoyo", "SMPN 2 Satu Atap / Kec. Jambon"],
+      ["09", "Solah Wetan", "Komunitas Masyarakat Seni Solah Wetan"],
+      ["10", "Singa Mudha Utama", "Wilayah Kecamatan Pulung"],
+      ["11", "Jugo Joyo Manggolo", "SMPN 2 Balong"],
+      ["12", "Gogor Sembada", "SMPN/MTs se-Kec. Babadan (diwakili SMPN 2 Babadan)"],
+    ],
+  },
+  {
+    day: "Selasa, 9 Juni 2026",
+    list: [
+      ["13", "Singo Taruno Budoyo", "SMPN 1 Ponorogo"],
+      ["14", "Putro Joyo Negoro", "Kontingen SMP/MTs Kec. Slahung"],
+      ["15", "Singo Sumowicitro", "SMPN 2 Kauman"],
+      ["16", "Singo Mulang Joyo", "SMPN 4 Ponorogo"],
+      ["17", "Arezza Manggala", "SMPN 1 Sambit"],
+      ["18", "Reyog Gunungsari", "SMPN 1 Mlarak"],
+      ["01", "Reyog Nurul Huda", "Ponpes Nurul Huda Sragen"],
+    ],
+  },
+  {
+    day: "Rabu, 10 Juni 2026",
+    list: [
+      ["19", "Taruno Mudho", "SMPN 1 Jetis"],
+      ["20", "Sardula Pratama", "SMPN 6 Ponorogo"],
+      ["21", "Taruna Argo Wilis", "SMPN 1 Ngebel"],
+      ["22", "Sardulo Mudho Nirmala", "SMPN 1 Jenangan"],
+      ["23", "Sekar Mas", "SMPN 5 Ponorogo"],
+      ["24", "Sardula Candi Taruna", "SMPN 1 Kauman"],
+    ],
+  },
+];
+
+const FNRP_PESERTA: { day: string; list: Peserta[] }[] = [
+  {
+    day: "Kamis, 11 Juni 2026",
+    list: [
+      ["02", "Sardhulo Kridho", "Ex-PB Somoroto"],
+      ["03", "Sardhulo Djoyo Gendhilo", "PSHWTM Pusat Madiun"],
+      ["04", "Manggolo Projo Arjowinangun", "Ex-PB Arjowinangun"],
+      ["05", "Reyog Krida Satria Tama", "Komisariat PSHT Pusat Madiun"],
+      ["06", "Taruno Jayengrono", "SMAN 1 Pulung"],
+      ["07", "Gembolo Sardulo", "Ex-PB Jebeng"],
+      ["08", "Singo Mudo Kepuhrubuh", "Desa Kepuhrubuh, Siman"],
+    ],
+  },
+  {
+    day: "Jumat, 12 Juni 2026",
+    list: [
+      ["09", "Reyog Panjer Lintang", "Ex-PB Pulung"],
+      ["10", "Krida Chitraka Muda", "SMKN 1 Slahung"],
+      ["11", "Gembong Tengah Kutho Titik Nol", "SMAN 1 Ponorogo"],
+      ["12", "Manggolo Wiyoto", "SMAN 3 Ponorogo"],
+      ["13", "Simo Budi Utomo", "PGRI Universitas Muhammadiyah Ponorogo"],
+      ["14", "Taruno Adi Luhung", "SMAN 1 Babadan"],
+      ["15", "Reyog Watoe Dhakon", "UIN Kyai Ageng Muhammad Besari Ponorogo"],
+      ["16", "Regol Wengker", "Komunitas Seniman Reyog Kecamatan Sampung"],
+    ],
+  },
+  {
+    day: "Sabtu, 13 Juni 2026",
+    list: [
+      ["17", "Pemerintah Kota Surabaya", "Purbaya Surabaya"],
+      ["18", "Kyai Lodra", "Disbud Jawa Timur"],
+      ["19", "Kedaton Singa Lodaya", "Blit'art Community"],
+      ["20", "Garudo Djoyo Manggolo", "Sekolah Rakyat Terintegrasi 5 Ponorogo"],
+      ["21", "Taruno Suryo", "SMA Muhammadiyah 1 Ponorogo"],
+      ["22", "Ki Ageng Mirah", "Resbumi PCNU Ponorogo"],
+      ["23", "Kawulo Mudho", "Kabupaten Nganjuk"],
+      ["24", "Kridha Taruna", "SMAN 2 Ponorogo"],
+    ],
+  },
+  {
+    day: "Minggu, 14 Juni 2026",
+    list: [
+      ["25", "PO Narendra", "PO Narendra"],
+      ["26", "Reyog Pemerintah Kabupaten Wonogiri", "Pemkab Wonogiri"],
+      ["27", "Manggolo Mudho", "Pawardo Yogyakarta"],
+      ["28", "Gajah Manggolo", "SMAN 1 Ponorogo"],
+      ["29", "Komunitas Reyog Singo Yogo", "Surakarta"],
+      ["30", "Satrio Bimo Sembodo", "Baturetno, Wonogiri"],
+      ["31", "Bantarangin DKI Jakarta", "Bantarangin DKI Jakarta"],
+      ["32", "Reyog Laskar Sawunggaling", "Universitas Negeri Surabaya"],
+      ["01", "Gembong Cadas Sriwijaya", "Sekolah Rakyat Terintegrasi 5 / Disbudpar Kota Palembang"],
+    ],
+  },
+];
+
 export default async function LandingPage() {
   const stats = await getStats();
 
@@ -683,38 +820,53 @@ export default async function LandingPage() {
               Grebeg Suro 2026 &mdash; <span className="text-gradient-brand">FNRP ke-XXXI</span>
             </h2>
             <p className="mt-4 text-body">
-              Lebih dari 29 rangkaian acara digelar sepanjang Juni&ndash;Juli 2026 di
-              Ponorogo. Berikut agenda-agenda utamanya.
+              Lebih dari 29 rangkaian acara digelar sepanjang Mei&ndash;Juli 2026 di
+              Ponorogo. Berikut rangkaian acara lengkap beserta daftar peserta festival.
             </p>
           </div>
 
-          <div className="mx-auto mt-14 max-w-3xl space-y-3">
-            {[
-              { date: "6 Juni 2026", iso: "2026-06-06", title: "Pembukaan Grebeg Suro, FRR XXII & FNRP XXXI", place: "Panggung Utama Alun-alun Ponorogo", icon: Sparkles },
-              { date: "7–10 Juni 2026", iso: "2026-06-07", title: "Festival Reog Remaja (FRR) XXII", place: "Alun-alun Ponorogo", icon: Users },
-              { date: "11–14 Juni 2026", iso: "2026-06-11", title: "Festival Nasional Reog Ponorogo (FNRP) XXXI", place: "Alun-alun Ponorogo", icon: Trophy },
-              { date: "12–15 Juni 2026", iso: "2026-06-12", title: "Pagelaran Pusaka", place: "Kota Ponorogo", icon: Crown },
-              { date: "Puncak — 1 Suro / 1 Muharram", iso: "", title: "Larungan Risalah Doa", place: "Telaga Ngebel", icon: Waves },
-            ].map((e) => (
-              <div key={e.title} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-5">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand/10">
-                  <e.icon className="h-5 w-5 text-brand" />
+          {/* Rangkaian acara lengkap */}
+          <div className="mx-auto mt-14 max-w-4xl">
+            <h3 className="font-display text-xl font-bold text-ink">Rangkaian Acara</h3>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {AGENDA_2026.map((e) => (
+                <div
+                  key={e.name}
+                  className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-soft"
+                >
+                  <span className="shrink-0 rounded-md bg-soft px-2.5 py-1 text-xs font-bold text-brand-700">
+                    {e.date}
+                  </span>
+                  <span className="text-sm font-medium text-ink">{e.name}</span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-base font-semibold text-ink">{e.title}</p>
-                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" /> {e.place}
-                  </p>
-                </div>
-                <span className="shrink-0 rounded-full bg-soft px-3 py-1.5 text-xs font-semibold text-brand-700">
-                  {e.iso ? <time dateTime={e.iso}>{e.date}</time> : e.date}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-          <p className="mx-auto mt-6 max-w-3xl text-center text-xs text-muted-foreground">
-            *Jadwal dapat berubah sesuai keputusan penyelenggara. Acara lain meliputi Grebeg
-            Bonsai, Festival Macapat Pelajar, Festival Lukisan, Vespakultural, dan lainnya.
+
+          {/* Daftar peserta */}
+          <div className="mx-auto mt-16 max-w-5xl">
+            <h3 className="font-display text-xl font-bold text-ink">
+              Daftar Peserta &mdash; Festival Reog Remaja (FRR) XXII
+            </h3>
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              {FRR_PESERTA.map((d) => (
+                <DayCard key={d.day} day={d.day} list={d.list} />
+              ))}
+            </div>
+
+            <h3 className="mt-14 font-display text-xl font-bold text-ink">
+              Daftar Peserta &mdash; Festival Nasional Reog Ponorogo (FNRP) XXXI
+            </h3>
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              {FNRP_PESERTA.map((d) => (
+                <DayCard key={d.day} day={d.day} list={d.list} />
+              ))}
+            </div>
+          </div>
+
+          <p className="mx-auto mt-10 max-w-3xl text-center text-xs text-muted-foreground">
+            *Jadwal &amp; nomor urut tampil dapat berubah sesuai keputusan penyelenggara.
+            Data dirangkum dari poster resmi Grebeg Suro 2026.
           </p>
         </div>
       </section>
@@ -906,6 +1058,27 @@ export default async function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
       />
     </main>
+  );
+}
+
+function DayCard({ day, list }: { day: string; list: Peserta[] }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+      <h4 className="font-display text-base font-bold text-ink">{day}</h4>
+      <ol className="mt-3 space-y-2.5">
+        {list.map(([no, nama, asal]) => (
+          <li key={no} className="flex gap-3 text-sm">
+            <span className="mt-0.5 w-6 shrink-0 text-right font-bold tabular-nums text-brand">
+              {no}
+            </span>
+            <span className="min-w-0">
+              <span className="font-medium text-ink">{nama}</span>
+              <span className="block text-xs text-muted-foreground">{asal}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
