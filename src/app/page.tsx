@@ -176,9 +176,8 @@ const faqJsonLd = {
   })),
 };
 
-// Video dokumentasi (Google Drive embed — diputar langsung di browser pengunjung)
-const VIDEO_EMBED =
-  "https://drive.google.com/file/d/153eFmDfxbWniCmjqPWO4EdyDVinGUrXc/preview";
+// Video dokumentasi (YouTube embed — andal & tanpa batas kuota Drive)
+const VIDEO_EMBED = "https://www.youtube-nocookie.com/embed/f7KMIPp3TkE";
 
 const videoJsonLd = {
   "@context": "https://schema.org",
@@ -186,8 +185,9 @@ const videoJsonLd = {
   name: "Cuplikan Grebeg Suro Ponorogo",
   description:
     "Video dokumentasi suasana Grebeg Suro dan Festival Nasional Reog Ponorogo, Jawa Timur.",
-  thumbnailUrl: [`${SITE}/brand/og.png`],
+  thumbnailUrl: ["https://i.ytimg.com/vi/f7KMIPp3TkE/maxresdefault.jpg"],
   uploadDate: "2026-06-10",
+  url: "https://youtu.be/f7KMIPp3TkE",
   embedUrl: VIDEO_EMBED,
   inLanguage: "id-ID",
   publisher: { "@type": "Organization", name: "Volunteer Grebeg Suro", url: SITE },
@@ -363,9 +363,9 @@ export default async function LandingPage() {
                   title="Video cuplikan Grebeg Suro Ponorogo"
                   className="absolute inset-0 h-full w-full"
                   loading="lazy"
-                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
+                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               </div>
             </div>
