@@ -8,3 +8,7 @@ README.md
 .env*.local
 docker-data
 **/*.md
+face-service/.venv
+face-service/models
+__pycache__
+clustered

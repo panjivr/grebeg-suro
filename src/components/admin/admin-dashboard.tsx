@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   LayoutDashboard,
   Users,
@@ -13,9 +14,11 @@ import {
   UserX,
   Activity,
   TrendingUp,
+  ScanFace,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutButton } from "@/components/logout-button";
@@ -80,6 +83,12 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Button asChild size="sm" variant="outline">
+              <Link href="/admin/face-review">
+                <ScanFace className="h-4 w-4" />
+                <span className="hidden sm:inline">Verifikasi Wajah</span>
+              </Link>
+            </Button>
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium text-ink">{adminName}</p>
               <Badge variant="outline" className="text-[10px]">{roleLabels[adminRole] ?? adminRole}</Badge>

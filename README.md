@@ -19,10 +19,17 @@ Sistem manajemen absensi relawan modern untuk **Grebeg Suro & Festival Nasional 
 | **Live Monitoring** | Update real-time via Supabase Realtime (fallback polling 15s) |
 | **Export** | Unduh laporan absensi **Excel** & **PDF** |
 | **Notifikasi** | Telegram admin (opsional) saat clock-in/out |
+| **Verifikasi Wajah** | *(Opsional)* InsightFace via face service lokal: badge "✓ Wajah terverifikasi", deteksi titip absen, self-learning galeri, panel review admin — [dokumentasi](face-service/README.md) |
 
 ### Peran (Roles)
 `VOLUNTEER` · `EO` · `COORDINATOR` · `ADMIN` · `SUPER_ADMIN`
 Coordinator/Admin/Super Admin memiliki akses ke panel admin.
+
+### 🧠 Verifikasi Wajah (opsional)
+
+Selfie check-in diverifikasi terhadap **galeri embedding** per volunteer (InsightFace `buffalo_l`, CPU, berjalan sebagai service systemd terpisah di `127.0.0.1:8001`). Keputusan 3-tier (`FACE_AUTO` / `FACE_LOW_CONF` / `MANUAL_FALLBACK`) dengan **graceful degradation** — absensi tidak pernah gagal walau face service mati/belum terpasang. Galeri "belajar" otomatis dari check-in terverifikasi (rolling window 30 embedding/orang) dan admin mereview kasus meragukan di **`/admin/face-review`**. Fitur nonaktif total selama `FACE_SERVICE_URL` kosong.
+
+➡ Deploy, seed galeri, dan tuning threshold: **[face-service/README.md](face-service/README.md)**
 
 ---
 

@@ -10,6 +10,7 @@ import {
   MapPin,
   Sparkles,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ interface AttendanceRecord {
   clockOut: string | null;
   status: string;
   workDate: string;
+  verifyMethod?: string | null;
 }
 
 const statusVariant: Record<string, "success" | "warning" | "destructive" | "default"> = {
@@ -170,6 +172,11 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
                 <p className="mt-2 font-display text-3xl font-bold tabular-nums text-ink">
                   {formatTime(today?.clockIn)}
                 </p>
+                {today?.verifyMethod === "FACE_AUTO" && (
+                  <Badge variant="success" className="mt-2 gap-1">
+                    <ShieldCheck className="h-3 w-3" /> Wajah terverifikasi
+                  </Badge>
+                )}
                 <Button
                   className="mt-4 w-full"
                   disabled={hasClockedIn}

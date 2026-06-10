@@ -6,7 +6,15 @@ import { validateLocation } from "@/lib/geo";
 import { saveSelfie } from "@/lib/storage";
 import { notifyTelegram } from "@/lib/notify";
 import { formatTime } from "@/lib/utils";
-import { AttendanceStatus } from "@prisma/client";
+import {
+  attendanceFaceFields,
+  enrichGallerySafe,
+  logFaceVerify,
+  shouldEnrichGallery,
+  verifyFace,
+  type FaceVerifyResult,
+} from "@/lib/face";
+import { AttendanceStatus, VerifyMethod } from "@prisma/client";
 
 const schema = z.object({
   latitude: z.number(),
@@ -89,7 +97,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Gagal menyimpan selfie" }, { status: 500 });
   }
 
-  // 5. Persist
+  // 5. Face verification — graceful degradation: null saat fitur nonaktif,
+  //    MANUAL_FALLBACK saat service down/timeout. Absensi tidak pernah gagal di sini.
+  const face = await verifyFace(photo, session.sub);
+  const faceFields = attendanceFaceFields(face);
+
+  // 6. Persist
   const record = await prisma.attendance.upsert({
     where: { id: existing?.id ?? "__none__" },
     update: {
@@ -98,6 +111,7 @@ export async function POST(req: Request) {
       clockInLat: latitude,
       clockInLong: longitude,
       status,
+      ...faceFields,
     },
     create: {
       userId: session.sub,
@@ -107,11 +121,26 @@ export async function POST(req: Request) {
       clockInLong: longitude,
       status,
       workDate: today,
+      ...faceFields,
     },
   });
 
+  // 7. Log verifikasi + self-learning (gallery enrichment) — keduanya non-fatal.
+  if (face) {
+    await logFaceVerify(session.sub, face);
+    if (shouldEnrichGallery(face)) {
+      await enrichGallerySafe({
+        volunteerId: session.sub,
+        embedding: face.embedding!,
+        detScore: face.detScore!,
+        similarity: face.similarity,
+        photoUrl,
+      });
+    }
+  }
+
   notifyTelegram(
-    `✅ <b>Clock In</b>\n${session.name} (${session.username})\nWaktu: ${formatTime(now)}\nStatus: ${status}\nJarak: ${geo.distance}m`
+    `✅ <b>Clock In</b>\n${session.name} (${session.username})\nWaktu: ${formatTime(now)}\nStatus: ${status}\nJarak: ${geo.distance}m${faceSummary(face)}`
   );
 
   return NextResponse.json({
@@ -119,5 +148,21 @@ export async function POST(req: Request) {
     status,
     clockIn: record.clockIn,
     distance: geo.distance,
+    faceVerified: face?.decision === VerifyMethod.FACE_AUTO,
+    verifyMethod: face?.decision ?? null,
   });
+}
+
+function faceSummary(face: FaceVerifyResult | null): string {
+  if (!face) return "";
+  const sim = face.similarity !== null ? ` (${face.similarity.toFixed(2)})` : "";
+  const mismatch = face.possibleMismatch ? " — ⚠ indikasi titip absen" : "";
+  switch (face.decision) {
+    case VerifyMethod.FACE_AUTO:
+      return `\nWajah: ✓ terverifikasi${sim}${mismatch}`;
+    case VerifyMethod.FACE_LOW_CONF:
+      return `\nWajah: ⚠ keyakinan rendah${sim} — perlu review${mismatch}`;
+    default:
+      return `\nWajah: ⚠ fallback manual (${face.reason}) — perlu review${mismatch}`;
+  }
 }
