@@ -13,22 +13,27 @@ export async function GET(
   }
   const { id } = await params;
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      phone: true,
-      role: true,
-      shift: true,
-      isActive: true,
-      profilePhoto: true,
-      createdAt: true,
-      division: { select: { name: true } },
-      profile: true,
-    },
-  });
+  const baseSelect = {
+    id: true,
+    name: true,
+    username: true,
+    phone: true,
+    role: true,
+    shift: true,
+    isActive: true,
+    profilePhoto: true,
+    createdAt: true,
+    division: { select: { name: true } },
+  } as const;
+
+  // Fail-soft: jika tabel volunteer_profiles belum termigrasi, kembalikan
+  // data akun tanpa profil alih-alih error 500.
+  const user = await prisma.user
+    .findUnique({ where: { id }, select: { ...baseSelect, profile: true } })
+    .catch(async () => {
+      const fallback = await prisma.user.findUnique({ where: { id }, select: baseSelect });
+      return fallback ? { ...fallback, profile: null } : null;
+    });
   if (!user) {
     return NextResponse.json({ error: "User tidak ditemukan" }, { status: 404 });
   }

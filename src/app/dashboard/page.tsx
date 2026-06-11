@@ -13,10 +13,12 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [event, profile] = await Promise.all([
-    prisma.eventSetting.findFirst({ where: { isActive: true } }),
-    prisma.volunteerProfile.findUnique({ where: { userId: user.id } }),
-  ]);
+  const event = await prisma.eventSetting.findFirst({ where: { isActive: true } });
+  // Fail-soft: jika tabel volunteer_profiles belum termigrasi, dashboard
+  // tetap tampil tanpa Data Diri — jangan pernah merusak halaman absensi.
+  const profile = await prisma.volunteerProfile
+    .findUnique({ where: { userId: user.id } })
+    .catch(() => null);
 
   return (
     <VolunteerDashboard
