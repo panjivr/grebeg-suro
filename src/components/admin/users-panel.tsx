@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Loader2, Trash2, UserPlus, Power } from "lucide-react";
+import { Plus, Loader2, Trash2, UserPlus, Power, IdCard } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ProfileDetails,
+  type VolunteerProfileData,
+} from "@/components/profile-details";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { roleLabels } from "@/lib/utils";
+import { roleLabels, initials } from "@/lib/utils";
 
 const ROLES = ["VOLUNTEER", "EO", "COORDINATOR", "ADMIN", "SUPER_ADMIN"];
 
@@ -46,6 +52,19 @@ interface UserRow {
   role: string;
   isActive: boolean;
   division: { name: string } | null;
+}
+
+interface UserProfileDetail {
+  id: string;
+  name: string;
+  username: string;
+  phone: string | null;
+  role: string;
+  shift: string | null;
+  isActive: boolean;
+  profilePhoto: string | null;
+  division: { name: string } | null;
+  profile: (VolunteerProfileData & { id: string }) | null;
 }
 
 export function UsersPanel() {
@@ -121,6 +140,40 @@ export function UsersPanel() {
     if (!res.ok) return toast.error(data.error ?? "Gagal menghapus");
     toast.success("User dihapus");
     load();
+  }
+
+  const [profileView, setProfileView] = useState<UserProfileDetail | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  async function openProfile(u: UserRow) {
+    setProfileLoading(true);
+    setProfileView({
+      id: u.id,
+      name: u.name,
+      username: u.username,
+      phone: u.phone,
+      role: u.role,
+      shift: null,
+      isActive: u.isActive,
+      profilePhoto: null,
+      division: u.division,
+      profile: null,
+    });
+    try {
+      const res = await fetch(`/api/admin/users/${u.id}/profile`);
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Gagal memuat profil");
+        setProfileView(null);
+        return;
+      }
+      setProfileView(data.user);
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+      setProfileView(null);
+    } finally {
+      setProfileLoading(false);
+    }
   }
 
   return (
@@ -215,6 +268,9 @@ export function UsersPanel() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openProfile(u)} title="Lihat profil & data pendaftaran">
+                        <IdCard className="h-4 w-4" />
+                      </Button>
                       <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => toggleActive(u)} title="Aktif/Nonaktif">
                         <Power className="h-4 w-4" />
                       </Button>
@@ -228,6 +284,65 @@ export function UsersPanel() {
             </TableBody>
           </Table>
         )}
+
+        {/* Dialog profil & data pendaftaran (read-only) */}
+        <Dialog open={!!profileView} onOpenChange={(o) => !o && setProfileView(null)}>
+          <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <IdCard className="h-5 w-5 text-brand" /> Profil Volunteer
+              </DialogTitle>
+            </DialogHeader>
+            {profileView && (
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-14 w-14">
+                    {profileView.profilePhoto && (
+                      <AvatarImage src={profileView.profilePhoto} alt={profileView.name} />
+                    )}
+                    <AvatarFallback>{initials(profileView.name)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-display text-lg font-semibold text-ink">
+                      {profileView.name}
+                    </p>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                      <Badge variant="outline">@{profileView.username}</Badge>
+                      <Badge variant="default">
+                        {roleLabels[profileView.role] ?? profileView.role}
+                      </Badge>
+                      {profileView.division && (
+                        <Badge variant="secondary">{profileView.division.name}</Badge>
+                      )}
+                      <Badge variant={profileView.isActive ? "success" : "secondary"}>
+                        {profileView.isActive ? "Aktif" : "Nonaktif"}
+                      </Badge>
+                    </div>
+                    {(profileView.phone || profileView.shift) && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {[profileView.phone, profileView.shift].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {profileLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-5 w-5/6" />
+                  </div>
+                ) : profileView.profile ? (
+                  <ProfileDetails profile={profileView.profile} />
+                ) : (
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    Data formulir pendaftaran belum tersedia untuk akun ini.
+                  </p>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

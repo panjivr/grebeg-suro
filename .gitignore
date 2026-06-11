@@ -51,3 +51,7 @@ __pycache__/
 
 # foto seed wajah (data biometrik — jangan pernah di-commit)
 /clustered/
+
+# data pendaftar & kredensial (data pribadi — jangan pernah di-commit)
+*.xlsx
+volunteer-credentials*.csv

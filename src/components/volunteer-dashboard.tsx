@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Clock,
   LogIn,
@@ -11,7 +11,12 @@ import {
   Sparkles,
   Loader2,
   ShieldCheck,
+  Camera,
+  Cake,
+  Hourglass,
+  IdCard,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +32,11 @@ import {
 import { AttendanceCapture } from "@/components/attendance-capture";
 import { LogoutButton } from "@/components/logout-button";
 import { BrandLogo } from "@/components/brand-logo";
+import {
+  ProfileDetails,
+  birthdayInfo,
+  type VolunteerProfileData,
+} from "@/components/profile-details";
 import { cn, formatTime, formatDate, formatDateShort, initials, roleLabels, statusLabels } from "@/lib/utils";
 
 interface UserLite {
@@ -59,7 +69,26 @@ const statusVariant: Record<string, "success" | "warning" | "destructive" | "def
   ON_DUTY: "default",
 };
 
-export function VolunteerDashboard({ user, event }: { user: UserLite; event: EventLite | null }) {
+/** Durasi ms -> teks Indonesia. withSeconds untuk timer live. */
+function formatDuration(ms: number, withSeconds = false): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (withSeconds) return `${h} j ${m} m ${s} d`;
+  if (h > 0) return `${h} jam ${m} menit`;
+  return `${m} menit`;
+}
+
+export function VolunteerDashboard({
+  user,
+  event,
+  profile,
+}: {
+  user: UserLite;
+  event: EventLite | null;
+  profile: VolunteerProfileData | null;
+}) {
   const [today, setToday] = useState<AttendanceRecord | null>(null);
   const [history, setHistory] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +97,9 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
     mode: "clock-in",
   });
   const [now, setNow] = useState(new Date());
+  const [profilePhoto, setProfilePhoto] = useState(user.profilePhoto);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -89,6 +121,80 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
   useEffect(() => {
     load();
   }, [load]);
+
+  /** Ganti foto profil: pilih file -> kompres via canvas -> simpan. */
+  async function changePhoto(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("File harus berupa gambar");
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const size = Math.min(img.width, img.height);
+          const canvas = document.createElement("canvas");
+          canvas.width = 512;
+          canvas.height = 512;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return reject(new Error("canvas"));
+          // Center-crop persegi lalu kecilkan ke 512px
+          ctx.drawImage(
+            img,
+            (img.width - size) / 2,
+            (img.height - size) / 2,
+            size,
+            size,
+            0,
+            0,
+            512,
+            512
+          );
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("load"));
+        };
+        img.src = url;
+      });
+
+      const res = await fetch("/api/profile/photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo: dataUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Gagal mengganti foto profil");
+        return;
+      }
+      setProfilePhoto(data.profilePhoto);
+      toast.success("Foto profil diperbarui");
+    } catch {
+      toast.error("Gagal memproses gambar");
+    } finally {
+      setUploadingPhoto(false);
+      if (photoInputRef.current) photoInputRef.current.value = "";
+    }
+  }
+
+  // Durasi bertugas dari riwayat clock-in/out (+ sesi berjalan secara live)
+  const completedMs = history.reduce((acc, r) => {
+    if (r.clockIn && r.clockOut) {
+      return acc + Math.max(0, +new Date(r.clockOut) - +new Date(r.clockIn));
+    }
+    return acc;
+  }, 0);
+  const ongoingMs =
+    today?.clockIn && !today.clockOut
+      ? Math.max(0, now.getTime() - +new Date(today.clockIn))
+      : 0;
+  const daysWorked = history.filter((r) => r.clockIn).length;
+  const bday = profile ? birthdayInfo(profile.birthDate, now) : null;
 
   const hasClockedIn = Boolean(today?.clockIn);
   const hasClockedOut = Boolean(today?.clockOut);
@@ -124,10 +230,36 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
           <CardContent className="-mt-10 pb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex items-end gap-4">
-                <Avatar className="h-20 w-20 border-4 border-card ring-2 ring-brand/30">
-                  {user.profilePhoto && <AvatarImage src={user.profilePhoto} alt={user.name} />}
-                  <AvatarFallback className="text-xl">{initials(user.name)}</AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-20 w-20 border-4 border-card ring-2 ring-brand/30">
+                    {profilePhoto && <AvatarImage src={profilePhoto} alt={user.name} />}
+                    <AvatarFallback className="text-xl">{initials(user.name)}</AvatarFallback>
+                  </Avatar>
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    title="Ganti foto profil"
+                    aria-label="Ganti foto profil"
+                    className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-brand text-white shadow-soft transition hover:brightness-110 disabled:opacity-60"
+                  >
+                    {uploadingPhoto ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Camera className="h-4 w-4" />
+                    )}
+                  </button>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) changePhoto(file);
+                    }}
+                  />
+                </div>
                 <div className="mb-1">
                   <h1 className="font-display text-2xl font-bold text-ink">{user.name}</h1>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -217,6 +349,101 @@ export function VolunteerDashboard({ user, event }: { user: UserLite; event: Eve
             value={event ? `${event.radiusMeter} meter dari venue` : "—"}
           />
         </div>
+
+        {/* Durasi bertugas + hitung mundur ulang tahun */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className={bday ? "" : "lg:col-span-2"}>
+            <CardContent className="pt-6">
+              <div className="mb-4 flex items-center gap-2">
+                <Hourglass className="h-5 w-5 text-brand" />
+                <h2 className="font-display text-lg font-semibold text-ink">Durasi Bertugas</h2>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl border border-border bg-secondary/50 p-4">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Total Durasi
+                  </p>
+                  <p className="mt-1 font-display text-2xl font-bold tabular-nums text-ink">
+                    {formatDuration(completedMs + ongoingMs)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-secondary/50 p-4">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Hari Bertugas
+                  </p>
+                  <p className="mt-1 font-display text-2xl font-bold tabular-nums text-ink">
+                    {daysWorked} hari
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-secondary/50 p-4">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Sesi Hari Ini
+                  </p>
+                  <p
+                    className={cn(
+                      "mt-1 font-display text-2xl font-bold tabular-nums",
+                      ongoingMs > 0 ? "text-success" : "text-ink"
+                    )}
+                  >
+                    {ongoingMs > 0 ? formatDuration(ongoingMs, true) : "—"}
+                  </p>
+                  {ongoingMs > 0 && (
+                    <p className="text-xs text-muted-foreground">sedang bertugas…</p>
+                  )}
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Dihitung dari riwayat clock-in/out Anda (maks. 30 catatan terakhir).
+              </p>
+            </CardContent>
+          </Card>
+
+          {bday && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <Cake className="h-5 w-5 text-brand" />
+                  <h2 className="font-display text-lg font-semibold text-ink">Ulang Tahun</h2>
+                </div>
+                {bday.isToday ? (
+                  <div className="rounded-2xl border border-success/30 bg-success/10 p-5 text-center">
+                    <p className="font-display text-3xl font-bold text-success">
+                      🎉 Selamat ulang tahun ke-{bday.age}!
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{bday.dateLabel}</p>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-border bg-secondary/50 p-5 text-center">
+                    <p className="font-display text-4xl font-bold tabular-nums text-gradient-brand">
+                      {bday.daysLeft} hari lagi
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      menuju ulang tahun ke-{bday.nextAge} · lahir {bday.dateLabel} ({bday.age}{" "}
+                      tahun)
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Data diri lengkap dari formulir pendaftaran */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="mb-4 flex items-center gap-2">
+              <IdCard className="h-5 w-5 text-brand" />
+              <h2 className="font-display text-lg font-semibold text-ink">Data Diri</h2>
+            </div>
+            {profile ? (
+              <ProfileDetails profile={profile} now={now} />
+            ) : (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Data formulir pendaftaran belum tersedia untuk akun ini.
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* History */}
         <Card>
