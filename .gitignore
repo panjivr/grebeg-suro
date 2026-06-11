@@ -42,3 +42,12 @@ docker-data/
 # deploy artifacts
 *.zip
 *.tar.gz
+
+# face service (Python)
+face-service/.venv/
+face-service/models/
+__pycache__/
+*.pyc
+
+# foto seed wajah (data biometrik — jangan pernah di-commit)
+/clustered/

@@ -30,6 +30,25 @@ enum AttendanceStatus {
   ON_DUTY // clocked in, not yet clocked out
 }
 
+// ---- Face verification ----
+
+enum VerifyMethod {
+  FACE_AUTO // similarity >= threshold AUTO — terverifikasi otomatis
+  FACE_LOW_CONF // similarity di zona abu-abu — sukses, ditandai review admin
+  MANUAL_FALLBACK // wajah tak terdeteksi / service down / similarity rendah — sukses, review admin
+}
+
+enum EmbeddingSource {
+  SEED // foto referensi dari seed script — tidak pernah dihapus rolling window
+  CHECKIN // dari selfie check-in: otomatis (FACE_AUTO) atau via approve admin "tambah ke galeri"
+}
+
+enum FaceReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Division {
   id          String   @id @default(cuid())
   name        String   @unique @map("division_name")
@@ -56,8 +75,9 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  division    Division?    @relation(fields: [divisionId], references: [id], onDelete: SetNull)
-  attendances Attendance[]
+  division       Division?       @relation(fields: [divisionId], references: [id], onDelete: SetNull)
+  attendances    Attendance[]
+  faceEmbeddings FaceEmbedding[]
 
   @@index([role])
   @@index([divisionId])
@@ -80,12 +100,57 @@ model Attendance {
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
 
+  // Face verification (null = check-in sebelum fitur aktif / face service belum dikonfigurasi)
+  verifyMethod      VerifyMethod?     @map("verify_method")
+  faceSimilarity    Float?            @map("face_similarity") // cosine similarity terhadap galeri volunteer ybs
+  possibleMismatch  Boolean           @default(false) @map("possible_mismatch") // top-1 global match ke volunteer lain (indikasi titip absen)
+  faceMatchedUserId String?           @map("face_matched_user_id") // user lain yang jadi top-1 global saat possibleMismatch
+  faceReviewStatus  FaceReviewStatus? @map("face_review_status")
+  faceReviewedBy    String?           @map("face_reviewed_by")
+  faceReviewedAt    DateTime?         @map("face_reviewed_at")
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([workDate])
   @@index([status])
+  @@index([faceReviewStatus])
   @@map("attendance")
+}
+
+// Galeri embedding wajah per volunteer. Model InsightFace buffalo_l TIDAK
+// di-train ulang — "belajar" = menambah embedding baru ke galeri (enrichment).
+model FaceEmbedding {
+  id          String          @id @default(cuid())
+  volunteerId String          @map("volunteer_id")
+  embedding   Bytes // Float32Array 512-dim, little-endian (4 byte/elemen)
+  source      EmbeddingSource
+  detScore    Float           @map("det_score") // confidence deteksi wajah saat ekstraksi
+  similarity  Float? // similarity saat check-in (null untuk SEED)
+  photoUrl    String?         @map("photo_url")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  volunteer User @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+
+  @@index([volunteerId])
+  @@map("face_embeddings")
+}
+
+// Log setiap percobaan verifikasi — bahan tuning threshold dari data lapangan.
+model FaceVerifyLog {
+  id            String   @id @default(cuid())
+  volunteerId   String   @map("volunteer_id")
+  similarity    Float? // null saat wajah tak terdeteksi / service error
+  decision      String // FACE_AUTO | FACE_LOW_CONF | MANUAL_FALLBACK
+  reason        String? // OK | NO_GALLERY | LOW_SIMILARITY | NO_FACE | MULTIPLE_FACES | TIMEOUT | SERVICE_ERROR
+  detScore      Float?   @map("det_score")
+  matchedUserId String?  @map("matched_user_id") // pemilik top-1 global jika berbeda dari target
+  latencyMs     Int      @map("latency_ms")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([volunteerId])
+  @@index([createdAt])
+  @@map("face_verify_logs")
 }
 
 model EventSetting {

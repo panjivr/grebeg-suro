@@ -1,0 +1,37 @@
+# ============================================================
+#  Grebeg Suro — Face Verification Service (systemd unit)
+#
+#  Pasang:
+#    cp deploy/face-service.service /etc/systemd/system/face-service.service
+#    systemctl daemon-reload
+#    systemctl enable --now face-service
+#  Cek:
+#    systemctl status face-service
+#    journalctl -u face-service -f
+#    curl http://127.0.0.1:8001/health
+#
+#  Prasyarat (sekali saja, lihat face-service/README.md):
+#    cd /var/www/grebeg-suro/face-service
+#    python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+#    cp .env.example .env   # isi DATABASE_URL
+# ============================================================
+[Unit]
+Description=Grebeg Suro Face Verification Service (InsightFace buffalo_l, CPU)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/grebeg-suro/face-service
+EnvironmentFile=-/var/www/grebeg-suro/face-service/.env
+# PENTING: bind hanya ke localhost — endpoint biometrik tidak boleh publik.
+ExecStart=/var/www/grebeg-suro/face-service/.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=3
+# Model + galeri butuh memori; sesuaikan jika VPS kecil.
+MemoryMax=1500M
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+# Grebeg Suro Face Service — Python >= 3.10
+# Catatan AlmaLinux: insightface meng-compile ekstensi Cython saat install:
+#   dnf install -y gcc-c++ python3-devel
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+python-multipart>=0.0.9
+numpy>=1.26,<2
+opencv-python-headless>=4.9,<5
+insightface==0.7.3
+onnxruntime>=1.17,<2
+psycopg[binary]>=3.1,<4

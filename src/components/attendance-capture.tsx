@@ -135,9 +135,13 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
         }
         return;
       }
+      const descParts = [
+        data.status ? `Status: ${data.status}` : null,
+        data.faceVerified ? "✓ Wajah terverifikasi" : null,
+      ].filter(Boolean);
       toast.success(
         mode === "clock-in" ? "Clock-in berhasil!" : "Clock-out berhasil!",
-        { description: data.status ? `Status: ${data.status}` : undefined }
+        { description: descParts.length > 0 ? descParts.join(" · ") : undefined }
       );
       onOpenChange(false);
       onSuccess();
