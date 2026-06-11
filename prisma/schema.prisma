@@ -75,13 +75,44 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  division       Division?       @relation(fields: [divisionId], references: [id], onDelete: SetNull)
+  division       Division?         @relation(fields: [divisionId], references: [id], onDelete: SetNull)
   attendances    Attendance[]
   faceEmbeddings FaceEmbedding[]
+  profile        VolunteerProfile?
 
   @@index([role])
   @@index([divisionId])
   @@map("users")
+}
+
+// Data diri lengkap volunteer dari formulir pendaftaran FRR & FNRP
+// (semua kolom nullable — jika tidak ada data, tidak diisi).
+model VolunteerProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique @map("user_id")
+  registeredAt      DateTime? @map("registered_at") // timestamp submit formulir
+  birthDate         DateTime? @map("birth_date") @db.Date
+  gender            String? // PEREMPUAN / LAKI LAKI (apa adanya dari formulir)
+  address           String? // alamat domisili
+  whatsapp          String? // nomor WA ternormalisasi (08…)
+  email             String?
+  socialMedia       String?   @map("social_media") // instagram & tiktok
+  occupation        String? // pekerjaan / kesibukan
+  medicalHistory    String?   @map("medical_history") // riwayat penyakit
+  previousCommittee Boolean?  @map("previous_committee") // pernah jadi panitia Grebeg Suro
+  chosenDivision    String?   @map("chosen_division") // divisi pilihan persis seperti di formulir
+  ktpPhotoUrl       String?   @map("ktp_photo_url") // tautan Google Drive
+  diplomaUrl        String?   @map("diploma_url") // ijazah/SKL
+  photo3x4Url       String?   @map("photo_3x4_url")
+  cvUrl             String?   @map("cv_url") // riwayat hidup (CV) dari formulir
+  portfolioUrl      String?   @map("portfolio_url")
+  aiTools           String?   @map("ai_tools") // jawaban "menggunakan AI"
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("volunteer_profiles")
 }
 
 model Attendance {
