@@ -1,27 +1,34 @@
 /**
- * Import & kurasi data pendaftar volunteer (Google Form xlsx) ke akun.
+ * Import & kurasi data pendaftar volunteer (Google Form xlsx) ke akun
+ * yang SUDAH ADA. Default: TIDAK membuat akun baru — pendaftar yang tidak
+ * punya akun dilewati, dan akun tanpa data formulir dibiarkan kosong.
  *
  * Sumber: sheet "Form Responses " — satu baris per submit formulir.
  * Kurasi yang dilakukan:
- *   - Dedup per orang (submit ulang): baris dengan timestamp TERBARU yang dipakai.
- *   - Nama dicocokkan fuzzy ke user yang sudah ada; tidak ada -> akun baru
- *     (role VOLUNTEER) dengan username dari nama & password acak (ditulis ke CSV).
+ *   - Dedup per orang (submit ulang): baris dengan timestamp TERBARU yang
+ *     dipakai + gabung varian ejaan nama via identitas (WA/email + tgl lahir).
+ *   - Nama formulir dicocokkan ke nama akun — paham nama akun yang DISINGKAT
+ *     ("Rasantri Esa" -> "Rasantri Esa Nor Fadillah") dan INISIAL
+ *     ("Aswangga F A P"); yang ambigu dilewati + peringatan, tidak menebak.
  *   - Tanggal lahir divalidasi (1940–2015); nilai mustahil dikosongkan + warning.
  *   - Nomor WA dinormalisasi ke format 08… (Excel kadang menyimpannya sebagai angka).
  *   - Jawaban kosong/"-" -> null (tidak diisi).
- *   - Divisi pilihan dipetakan ke master Divisi (di-upsert); user tanpa divisi
- *     otomatis terhubung — divisi yang sudah diatur admin TIDAK ditimpa.
- *   - Data akun existing yang TIDAK pernah disentuh: password, role, nama.
+ *   - Divisi pilihan dipetakan ke master Divisi — HANYA untuk user yang belum
+ *     punya divisi; pengaturan admin tidak ditimpa.
+ *   - Yang TIDAK pernah disentuh pada akun existing: password, role, nama.
  *
- * Pakai (dari root repo):
+ * Pakai (dari root repo; .env berisi DATABASE_URL — bisa Supabase, jalan dari laptop):
  *   npx tsx scripts/import-volunteer-profiles.ts --file data-pendaftar.xlsx --dry-run
  *   npx tsx scripts/import-volunteer-profiles.ts --file data-pendaftar.xlsx
  *
  * Opsi:
- *   --file <xlsx>   wajib — file export Google Form
- *   --dry-run       tampilkan ringkasan tanpa menulis apa pun
- *   --no-create     hanya perbarui user yang sudah ada (tanpa akun baru)
- *   --out <csv>     file kredensial akun baru (default: ./volunteer-credentials.csv)
+ *   --file <xlsx>    wajib — file export Google Form
+ *   --dry-run        tampilkan rencana lengkap tanpa menulis apa pun
+ *   --map <json>     pemetaan manual { "username-atau-nama-akun": "nama di formulir" }
+ *                    untuk kasus yang tidak bisa dicocokkan otomatis
+ *   --allow-create   izinkan membuat akun baru utk pendaftar tanpa akun
+ *                    (default MATI; kredensial akun baru ditulis ke CSV)
+ *   --out <csv>      file kredensial saat --allow-create (default: ./volunteer-credentials.csv)
  *
  * PENTING: file xlsx & CSV kredensial berisi data pribadi — jangan di-commit
  * (sudah masuk .gitignore). Hapus CSV setelah dibagikan.
@@ -114,6 +121,37 @@ export function canonicalDivision(raw: string | null): string | null {
 export function usernameSlug(name: string): string {
   const base = normalizeName(name).replace(/\s+/g, "").slice(0, 20);
   return base || "volunteer";
+}
+
+/**
+ * Skor utk nama akun yang DISINGKAT terhadap nama formulir lengkap
+ * ("Rasantri Esa" vs "Rasantri Esa Nor Fadillah", "Aswangga F A P" vs nama
+ * panjangnya). Semua token nama pendek harus muncul BERURUTAN pada nama
+ * panjang; token cocok jika sama persis atau salah satunya inisial 1 huruf.
+ * Hasil >= 0.93 (ambang terima) hanya saat seluruh urutan token cocok.
+ */
+export function subsequenceNameScore(shortName: string, fullName: string): number {
+  const short = normalizeName(shortName).split(" ").filter(Boolean);
+  const full = normalizeName(fullName).split(" ").filter(Boolean);
+  if (short.length === 0 || full.length === 0 || short.length > full.length) return 0;
+  let idx = 0;
+  let exact = 0;
+  for (const token of full) {
+    if (idx >= short.length) break;
+    const s = short[idx];
+    if (s === token) {
+      exact++;
+      idx++;
+    } else if (s.length === 1 && token.startsWith(s)) {
+      idx++; // inisial pada nama pendek ("F" vs "Fawnia")
+    } else if (token.length === 1 && s.startsWith(token)) {
+      idx++; // inisial pada nama panjang
+    }
+  }
+  if (idx < short.length) return 0; // ada token yang tidak ketemu berurutan
+  const coverage = short.length / full.length;
+  const exactness = exact / short.length;
+  return 0.9 + 0.05 * coverage + 0.05 * exactness;
 }
 
 // ---------------------------------------------------------------------------
@@ -264,12 +302,19 @@ const MATCH_ACCEPT = 0.93; // lebih ketat dari seed wajah: salah orang = fatal
 const MATCH_GAP = 0.05;
 
 function parseArgs(argv: string[]) {
-  const args = { file: "", dryRun: false, noCreate: false, out: "./volunteer-credentials.csv" };
+  const args = {
+    file: "",
+    dryRun: false,
+    allowCreate: false,
+    map: "",
+    out: "./volunteer-credentials.csv",
+  };
   for (let i = 0; i < argv.length; i++) {
     switch (argv[i]) {
       case "--file": args.file = argv[++i] ?? ""; break;
       case "--dry-run": args.dryRun = true; break;
-      case "--no-create": args.noCreate = true; break;
+      case "--allow-create": args.allowCreate = true; break;
+      case "--map": args.map = argv[++i] ?? ""; break;
       case "--out": args.out = argv[++i] ?? args.out; break;
       default:
         console.error(`Argumen tidak dikenal: ${argv[i]}`);
@@ -382,9 +427,44 @@ async function main() {
   }
   const plans: Plan[] = [];
   const claimedUserIds = new Set<string>(); // 1 akun existing maks. di-update 1 orang
+  let noAccount = 0;
+  let ambiguousCount = 0;
+
+  // ---- Pemetaan manual (--map): { "username-atau-nama-akun": "nama di formulir" } ----
+  const mappedPersonKeys = new Set<string>();
+  if (args.map) {
+    const explicit: Record<string, string> = JSON.parse(readFileSync(resolve(args.map), "utf8"));
+    for (const [accountKey, formName] of Object.entries(explicit)) {
+      const user = users.find(
+        (u) => u.username === accountKey || normalizeName(u.name) === normalizeName(accountKey)
+      );
+      const person = people.find((p) => normalizeName(p.name) === normalizeName(formName));
+      if (!user) {
+        console.warn(`  ⚠ Map: akun "${accountKey}" tidak ditemukan — dilewati.`);
+      } else if (!person) {
+        console.warn(`  ⚠ Map: nama formulir "${formName}" tidak ditemukan — dilewati.`);
+      } else if (claimedUserIds.has(user.id)) {
+        console.warn(`  ⚠ Map: akun "${accountKey}" sudah dipetakan dua kali — dilewati.`);
+      } else {
+        claimedUserIds.add(user.id);
+        mappedPersonKeys.add(normalizeName(person.name));
+        plans.push({ row: person, action: "update", user, via: "map" });
+      }
+    }
+  }
+
   for (const p of people) {
+    if (mappedPersonKeys.has(normalizeName(p.name))) continue;
     const scored = users
-      .map((u) => ({ u, score: Math.max(nameScore(p.name, u.name), nameScore(p.name, u.username)) }))
+      .map((u) => ({
+        u,
+        score: Math.max(
+          nameScore(p.name, u.name),
+          nameScore(p.name, u.username),
+          subsequenceNameScore(u.name, p.name), // nama akun disingkat
+          subsequenceNameScore(p.name, u.name) // nama formulir disingkat
+        ),
+      }))
       .sort((a, b) => b.score - a.score);
     const [best, second] = scored;
     // Ambigu = dua kandidat sama-sama kuat dengan selisih tipis -> jangan tebak.
@@ -394,11 +474,13 @@ async function main() {
       claimedUserIds.add(best.u.id);
       plans.push({ row: p, action: "update", user: best.u, via: `match ${best.score.toFixed(2)}` });
     } else if (ambiguous || (best && best.score >= MATCH_ACCEPT && claimedUserIds.has(best.u.id))) {
+      ambiguousCount++;
       console.warn(
         `  ⚠ "${p.name}" ambigu/bentrok dengan akun existing (top: ${best!.u.name} ${best!.score.toFixed(2)}) — dilewati, selesaikan manual.`
       );
       plans.push({ row: p, action: "skip" });
-    } else if (args.noCreate) {
+    } else if (!args.allowCreate) {
+      noAccount++; // pendaftar tanpa akun — default: dilewati, BUKAN dibuatkan akun
       plans.push({ row: p, action: "skip" });
     } else {
       plans.push({ row: p, action: "create" });
@@ -407,9 +489,19 @@ async function main() {
   const nUpdate = plans.filter((x) => x.action === "update").length;
   const nCreate = plans.filter((x) => x.action === "create").length;
   const nSkip = plans.filter((x) => x.action === "skip").length;
-  console.log(`\n📌 Rencana: ${nUpdate} update akun existing · ${nCreate} akun baru · ${nSkip} dilewati`);
+  console.log(
+    `\n📌 Rencana: ${nUpdate} akun existing dilengkapi datanya · ${nCreate} akun baru · ${nSkip} dilewati` +
+      ` (${noAccount} pendaftar tanpa akun${ambiguousCount ? `, ${ambiguousCount} ambigu` : ""})`
+  );
   for (const pl of plans.filter((x) => x.action === "update")) {
-    console.log(`    ↻ "${pl.row.name}" -> @${pl.user!.username} [${pl.via}]`);
+    console.log(`    ↻ "${pl.row.name}" -> ${pl.user!.name} (@${pl.user!.username}) [${pl.via}]`);
+  }
+
+  // Akun yang TIDAK ditemukan datanya di formulir — dibiarkan apa adanya.
+  const unclaimed = users.filter((u) => !claimedUserIds.has(u.id));
+  if (unclaimed.length > 0) {
+    console.log(`\nℹ ${unclaimed.length} akun tanpa data formulir (dibiarkan kosong):`);
+    for (const u of unclaimed) console.log(`    - ${u.name} (@${u.username})`);
   }
 
   if (args.dryRun) {
@@ -417,17 +509,25 @@ async function main() {
     return;
   }
 
-  // ---- Upsert master divisi ----
+  // ---- Master divisi (lazy): hanya dibuat saat benar-benar akan dipakai,
+  // yaitu untuk akun yang divisinya masih kosong / akun baru (--allow-create).
+  // Divisi final yang sudah diatur admin (mis. "Runner") tidak diutak-atik.
   const divisionIds = new Map<string, string>();
-  for (const name of divCount.keys()) {
-    if (name === "(kosong)") continue;
-    const div = await prisma.division.upsert({
-      where: { name },
-      update: {},
-      create: { name, description: "Divisi Volunteer FRR & FNRP 2026" },
-    });
-    divisionIds.set(name, div.id);
-  }
+  const ensureDivision = async (formDivision: string | null): Promise<string | null> => {
+    const name = canonicalDivision(formDivision);
+    if (!name) return null;
+    let id = divisionIds.get(name);
+    if (!id) {
+      const div = await prisma.division.upsert({
+        where: { name },
+        update: {},
+        create: { name, description: "Divisi Volunteer FRR & FNRP 2026" },
+      });
+      id = div.id;
+      divisionIds.set(name, id);
+    }
+    return id;
+  };
 
   const profileData = (p: FormRow) => ({
     registeredAt: p.timestamp,
@@ -454,18 +554,18 @@ async function main() {
 
   for (const plan of plans) {
     const p = plan.row;
-    const divId = divisionIds.get(canonicalDivision(p.chosenDivision) ?? "") ?? null;
     try {
       if (plan.action === "update" && plan.user) {
         const u = plan.user;
         const phoneFree = p.whatsapp && !usedPhones.has(p.whatsapp) && !u.phone;
         if (phoneFree) usedPhones.add(p.whatsapp!);
+        // divisi hanya diisi jika akun belum punya (pengaturan admin tidak ditimpa)
+        const divId = u.divisionId ? null : await ensureDivision(p.chosenDivision);
         await prisma.user.update({
           where: { id: u.id },
           data: {
-            // hanya melengkapi yang kosong — pengaturan admin tidak ditimpa
             ...(phoneFree ? { phone: p.whatsapp } : {}),
-            ...(!u.divisionId && divId ? { divisionId: divId } : {}),
+            ...(divId ? { divisionId: divId } : {}),
             profile: {
               upsert: { create: profileData(p), update: profileData(p) },
             },
@@ -473,6 +573,7 @@ async function main() {
         });
         updated++;
       } else if (plan.action === "create") {
+        const divId = await ensureDivision(p.chosenDivision);
         let username = usernameSlug(p.name);
         if (usernames.has(username)) {
           let n = 2;
