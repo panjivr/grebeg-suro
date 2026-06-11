@@ -15,7 +15,14 @@ const SERVICE_URL = (process.env.FACE_SERVICE_URL ?? "").replace(/\/+$/, "");
 const TIMEOUT_MS = Number(process.env.FACE_SERVICE_TIMEOUT_MS ?? 5000);
 const ENRICH_MIN_DET_SCORE = Number(process.env.FACE_ENRICH_MIN_DET_SCORE ?? 0.6);
 const GALLERY_MAX = Number(process.env.FACE_GALLERY_MAX_EMBEDDINGS ?? 30);
-const EMBEDDING_DIM = 512;
+const EMBEDDING_DIM = 512; // InsightFace (face service)
+const BROWSER_DIM = 128; // face-api.js (deteksi di browser, mode tanpa server)
+
+// Mode browser: face-api memakai JARAK euclidean (standar: <0.6 = orang sama).
+// Disimpan/ditampilkan sebagai similarity = 1 - jarak.
+const BROWSER_AUTO_DISTANCE = Number(process.env.FACE_BROWSER_AUTO_DISTANCE ?? 0.5);
+const BROWSER_REVIEW_DISTANCE = Number(process.env.FACE_BROWSER_REVIEW_DISTANCE ?? 0.6);
+const BROWSER_MISMATCH_DISTANCE = Number(process.env.FACE_BROWSER_MISMATCH_DISTANCE ?? 0.5);
 
 export const isFaceVerificationEnabled = Boolean(SERVICE_URL);
 
@@ -111,6 +118,121 @@ export async function verifyFace(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Mode browser (tanpa face service): descriptor 128-dim dihitung di HP
+// volunteer, perbandingan euclidean dilakukan di sini terhadap galeri DB.
+// ---------------------------------------------------------------------------
+
+interface GalleryRow {
+  volunteerId: string;
+  vector: Float32Array;
+}
+let galleryCache: { loadedAt: number; rows: GalleryRow[] } | null = null;
+const GALLERY_CACHE_TTL_MS = 60_000;
+
+async function loadBrowserGallery(): Promise<GalleryRow[]> {
+  if (galleryCache && Date.now() - galleryCache.loadedAt < GALLERY_CACHE_TTL_MS) {
+    return galleryCache.rows;
+  }
+  const rows = await prisma.faceEmbedding.findMany({
+    select: { volunteerId: true, embedding: true },
+  });
+  const parsed: GalleryRow[] = [];
+  for (const row of rows) {
+    const bytes = row.embedding as Uint8Array;
+    if (bytes.byteLength !== BROWSER_DIM * 4) continue; // hanya embedding 128-dim
+    parsed.push({
+      volunteerId: row.volunteerId,
+      vector: new Float32Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)),
+    });
+  }
+  galleryCache = { loadedAt: Date.now(), rows: parsed };
+  return parsed;
+}
+
+function euclideanDistance(a: Float32Array, b: Float32Array): number {
+  let sum = 0;
+  for (let i = 0; i < a.length; i++) {
+    const d = a[i] - b[i];
+    sum += d * d;
+  }
+  return Math.sqrt(sum);
+}
+
+/**
+ * Verifikasi descriptor wajah hasil deteksi browser terhadap galeri DB.
+ * null jika descriptor tidak dikirim (fitur off untuk request ini) —
+ * perilaku identik dengan mode face-service yang tidak dikonfigurasi.
+ */
+export async function verifyDescriptorLocal(
+  descriptor: number[] | null,
+  detScore: number | null,
+  volunteerId: string
+): Promise<FaceVerifyResult | null> {
+  if (!descriptor) return null;
+  const started = Date.now();
+  if (descriptor.length !== BROWSER_DIM || descriptor.some((v) => !Number.isFinite(v))) {
+    return fallbackResult("INVALID_DESCRIPTOR", Date.now() - started);
+  }
+  const probe = new Float32Array(descriptor);
+
+  let rows: GalleryRow[];
+  try {
+    rows = await loadBrowserGallery();
+  } catch (err) {
+    console.error("Gagal memuat galeri wajah:", err);
+    return fallbackResult("SERVICE_ERROR", Date.now() - started);
+  }
+
+  let targetMin = Infinity;
+  let globalMin = Infinity;
+  let globalOwner: string | null = null;
+  let galleryCount = 0;
+  for (const row of rows) {
+    const dist = euclideanDistance(probe, row.vector);
+    if (row.volunteerId === volunteerId) {
+      galleryCount++;
+      if (dist < targetMin) targetMin = dist;
+    }
+    if (dist < globalMin) {
+      globalMin = dist;
+      globalOwner = row.volunteerId;
+    }
+  }
+
+  const possibleMismatch =
+    globalOwner !== null && globalOwner !== volunteerId && globalMin <= BROWSER_MISMATCH_DISTANCE;
+
+  let decision: VerifyMethod;
+  let reason: string;
+  if (galleryCount === 0) {
+    decision = VerifyMethod.MANUAL_FALLBACK;
+    reason = "NO_GALLERY";
+  } else if (targetMin <= BROWSER_AUTO_DISTANCE) {
+    decision = VerifyMethod.FACE_AUTO;
+    reason = "OK";
+  } else if (targetMin <= BROWSER_REVIEW_DISTANCE) {
+    decision = VerifyMethod.FACE_LOW_CONF;
+    reason = "OK";
+  } else {
+    decision = VerifyMethod.MANUAL_FALLBACK;
+    reason = "LOW_SIMILARITY";
+  }
+
+  return {
+    decision,
+    reason,
+    similarity: galleryCount > 0 ? Math.max(0, 1 - targetMin) : null,
+    matchedVolunteerId: globalOwner,
+    matchedSimilarity: globalOwner !== null ? Math.max(0, 1 - globalMin) : null,
+    possibleMismatch,
+    detScore,
+    embedding: descriptor,
+    galleryCount,
+    latencyMs: Date.now() - started,
+  };
+}
+
 export interface AttendanceFaceFields {
   verifyMethod?: VerifyMethod;
   faceSimilarity?: number | null;
@@ -185,8 +307,10 @@ export async function addGalleryEmbedding(input: {
   similarity: number | null;
   photoUrl: string | null;
 }): Promise<void> {
-  if (input.embedding.length !== EMBEDDING_DIM) {
-    console.error(`Embedding ditolak: dimensi ${input.embedding.length} != ${EMBEDDING_DIM}`);
+  if (input.embedding.length !== EMBEDDING_DIM && input.embedding.length !== BROWSER_DIM) {
+    console.error(
+      `Embedding ditolak: dimensi ${input.embedding.length} (harus ${BROWSER_DIM} atau ${EMBEDDING_DIM})`
+    );
     return;
   }
   await prisma.faceEmbedding.create({
@@ -232,8 +356,9 @@ async function pruneGallery(volunteerId: string): Promise<void> {
   }
 }
 
-/** Minta face service memuat ulang galeri (fire-and-forget). */
+/** Muat ulang galeri: cache lokal (mode browser) + face service (fire-and-forget). */
 export async function reloadFaceGallery(): Promise<void> {
+  galleryCache = null;
   if (!isFaceVerificationEnabled) return;
   try {
     await fetch(`${SERVICE_URL}/reload`, {

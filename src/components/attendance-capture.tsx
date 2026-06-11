@@ -11,6 +11,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  computeFaceDescriptor,
+  preloadFaceModels,
+  type FaceDescriptorResult,
+} from "@/lib/face-client";
 
 type Mode = "clock-in" | "clock-out";
 type Coords = { latitude: number; longitude: number; accuracy: number };
@@ -30,6 +35,8 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
   const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [camError, setCamError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Deteksi wajah di browser (non-blocking; gagal = absen tetap jalan)
+  const faceJobRef = useRef<Promise<FaceDescriptorResult | null> | null>(null);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -77,13 +84,17 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
   useEffect(() => {
     if (open) {
       setPhoto(null);
+      faceJobRef.current = null;
       startCamera();
       fetchLocation();
+      if (mode === "clock-in") {
+        void preloadFaceModels(); // warm-up model selagi user bersiap selfie
+      }
     } else {
       stopCamera();
     }
     return () => stopCamera();
-  }, [open, startCamera, fetchLocation, stopCamera]);
+  }, [open, mode, startCamera, fetchLocation, stopCamera]);
 
   function capture() {
     const video = videoRef.current;
@@ -103,10 +114,14 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
     const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // compress
     setPhoto(dataUrl);
     stopCamera();
+    if (mode === "clock-in") {
+      faceJobRef.current = computeFaceDescriptor(canvas);
+    }
   }
 
   function retake() {
     setPhoto(null);
+    faceJobRef.current = null;
     startCamera();
   }
 
@@ -115,6 +130,15 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
     if (!coords) return toast.error("Lokasi belum terdeteksi");
     setSubmitting(true);
     try {
+      // Tunggu hasil deteksi wajah sebentar saja — HP lambat/gagal deteksi
+      // tidak boleh menghambat absensi (descriptor opsional).
+      let face: FaceDescriptorResult | null = null;
+      if (mode === "clock-in" && faceJobRef.current) {
+        face = await Promise.race([
+          faceJobRef.current,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 6000)),
+        ]);
+      }
       const res = await fetch(`/api/attendance/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,6 +146,7 @@ export function AttendanceCapture({ open, mode, onOpenChange, onSuccess }: Props
           latitude: coords.latitude,
           longitude: coords.longitude,
           photo,
+          ...(face ? { faceDescriptor: face.descriptor, faceDetScore: face.detScore } : {}),
         }),
       });
       const data = await res.json();

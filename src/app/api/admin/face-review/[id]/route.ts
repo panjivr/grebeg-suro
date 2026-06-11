@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdminRole } from "@/lib/auth";
-import { addGalleryEmbedding, embedFace } from "@/lib/face";
+import { addGalleryEmbedding, embedFace, isFaceVerificationEnabled } from "@/lib/face";
 import { FaceReviewStatus } from "@prisma/client";
 
 const schema = z.object({
   action: z.enum(["APPROVE", "REJECT"]),
   // Hanya relevan untuk APPROVE: masukkan embedding selfie ini ke galeri.
   addToGallery: z.boolean().optional().default(false),
+  // Mode tanpa face service: embedding dihitung di browser admin (128-dim)
+  embedding: z.array(z.number()).min(64).max(1024).optional(),
+  detScore: z.number().min(0).max(1).optional(),
 });
 
 async function photoToDataUrl(photo: string): Promise<string> {
@@ -37,7 +40,7 @@ export async function POST(
       { status: 400 }
     );
   }
-  const { action, addToGallery } = parsed.data;
+  const { action, addToGallery, embedding: clientEmbedding, detScore: clientDetScore } = parsed.data;
 
   const record = await prisma.attendance.findUnique({
     where: { id },
@@ -70,8 +73,25 @@ export async function POST(
       );
     }
     try {
-      const dataUrl = await photoToDataUrl(record.clockInPhoto);
-      const { embedding, detScore } = await embedFace(dataUrl);
+      let embedding: number[];
+      let detScore: number;
+      if (isFaceVerificationEnabled) {
+        // Mode face service (VPS): server yang menghitung embedding
+        const dataUrl = await photoToDataUrl(record.clockInPhoto);
+        ({ embedding, detScore } = await embedFace(dataUrl));
+      } else if (clientEmbedding && clientEmbedding.length === 128) {
+        // Mode browser: embedding dihitung di panel admin
+        embedding = clientEmbedding;
+        detScore = clientDetScore ?? 0;
+      } else {
+        return NextResponse.json(
+          {
+            error:
+              "Wajah tidak terdeteksi pada foto selfie ini (deteksi dilakukan di browser) — coba lagi atau approve tanpa galeri",
+          },
+          { status: 422 }
+        );
+      }
       await addGalleryEmbedding({
         volunteerId: record.userId,
         embedding,
