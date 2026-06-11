@@ -9,8 +9,10 @@ import { formatTime } from "@/lib/utils";
 import {
   attendanceFaceFields,
   enrichGallerySafe,
+  isFaceVerificationEnabled,
   logFaceVerify,
   shouldEnrichGallery,
+  verifyDescriptorLocal,
   verifyFace,
   type FaceVerifyResult,
 } from "@/lib/face";
@@ -20,6 +22,9 @@ const schema = z.object({
   latitude: z.number(),
   longitude: z.number(),
   photo: z.string().startsWith("data:image", "Selfie wajib diambil"),
+  // Mode tanpa server: descriptor wajah 128-dim dihitung di browser (opsional)
+  faceDescriptor: z.array(z.number()).min(64).max(1024).optional(),
+  faceDetScore: z.number().min(0).max(1).optional(),
 });
 
 function startOfToday() {
@@ -41,7 +46,7 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { latitude, longitude, photo } = parsed.data;
+  const { latitude, longitude, photo, faceDescriptor, faceDetScore } = parsed.data;
 
   // 1. Geofence validation
   const event = await prisma.eventSetting.findFirst({ where: { isActive: true } });
@@ -97,9 +102,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Gagal menyimpan selfie" }, { status: 500 });
   }
 
-  // 5. Face verification — graceful degradation: null saat fitur nonaktif,
-  //    MANUAL_FALLBACK saat service down/timeout. Absensi tidak pernah gagal di sini.
-  const face = await verifyFace(photo, session.sub);
+  // 5. Face verification — graceful degradation: absensi TIDAK PERNAH gagal di sini.
+  //    Prioritas: face service (VPS) jika dikonfigurasi; tanpa itu pakai
+  //    descriptor hasil deteksi di browser (mode Netlify tanpa server).
+  const face = isFaceVerificationEnabled
+    ? await verifyFace(photo, session.sub)
+    : await verifyDescriptorLocal(faceDescriptor ?? null, faceDetScore ?? null, session.sub);
   const faceFields = attendanceFaceFields(face);
 
   // 6. Persist

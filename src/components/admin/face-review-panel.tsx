@@ -31,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BrandLogo } from "@/components/brand-logo";
+import { descriptorFromImageUrl } from "@/lib/face-client";
 import { formatDateShort, formatTime, initials } from "@/lib/utils";
 
 interface ReviewRecord {
@@ -146,10 +147,21 @@ export function FaceReviewPanel() {
     const withGallery = action === "APPROVE" && Boolean(addToGallery[record.id]);
     setActing(`${record.id}:${action}`);
     try {
+      // Mode tanpa face service: embedding dihitung di browser admin dari
+      // foto selfie yang sedang ditampilkan, lalu dikirim bersama approve.
+      let clientFace: { embedding: number[]; detScore: number } | null = null;
+      if (withGallery && record.clockInPhoto) {
+        const result = await descriptorFromImageUrl(record.clockInPhoto);
+        if (result) clientFace = { embedding: result.descriptor, detScore: result.detScore };
+      }
       const res = await fetch(`/api/admin/face-review/${record.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, addToGallery: withGallery }),
+        body: JSON.stringify({
+          action,
+          addToGallery: withGallery,
+          ...(clientFace ? clientFace : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {

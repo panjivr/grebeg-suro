@@ -1,5 +1,7 @@
 # Face Verification Service — Grebeg Suro
 
+> ℹ **Dua mode verifikasi wajah.** Dokumen ini membahas **Mode B (face service di VPS, InsightFace — paling akurat)**. Tanpa VPS/biaya, sistem otomatis memakai **Mode A: deteksi di browser** (face-api.js; model dari `/public/models`, server hanya membandingkan descriptor 128-dim terhadap galeri DB). Mode A aktif selama `FACE_SERVICE_URL` kosong — threshold-nya di `.env` aplikasi (`FACE_BROWSER_*`). Alur 3-tier, deteksi titip absen, review admin `/admin/face-review`, dan self-learning galeri berlaku di kedua mode. Bootstrap Mode A: check-in pertama volunteer masuk antrian review → admin **Setujui + "tambahkan ke galeri"** → check-in berikutnya otomatis terverifikasi.
+
 Service Python (FastAPI) untuk verifikasi wajah saat absensi. Model **InsightFace `buffalo_l`** (pre-trained, CPU) — model **tidak pernah di-train ulang**; sistem "belajar" lewat **gallery enrichment**: setiap check-in terverifikasi menambah embedding baru ke galeri volunteer, sehingga matching makin tahan terhadap variasi mimik, pencahayaan, sudut, dan perubahan wajah.
 
 > 🔒 **Privasi:** embedding = data biometrik. Service ini **hanya boleh listen di `127.0.0.1`** dan dipanggil server-side oleh Next.js. Jangan pernah membuka port 8001 di firewall/Nginx.
