@@ -44,6 +44,17 @@ Tambahan: jika top-1 **global** (semua volunteer) milik orang LAIN dengan simila
 
 ## Deploy di VPS (AlmaLinux, systemd)
 
+### Cara cepat (satu perintah, idempoten)
+
+```bash
+cd /var/www/grebeg-suro
+git pull && sudo bash scripts/setup-face-service.sh
+```
+
+Script ini meng-update aplikasi (migrasi DB ikut terpasang), memasang face service + systemd, lalu **mengaktifkan `FACE_SERVICE_URL` hanya setelah face service terbukti sehat** — gagal di titik mana pun, absensi tetap berjalan normal tanpa fitur wajah. Aman dijalankan berulang.
+
+### Cara manual (langkah per langkah)
+
 ```bash
 cd /var/www/grebeg-suro/face-service
 
