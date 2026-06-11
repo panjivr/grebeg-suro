@@ -33,10 +33,13 @@ import readline from "node:readline/promises";
 import { PrismaClient, EmbeddingSource } from "@prisma/client";
 
 // ---- .env loader sederhana (tsx tidak memuat .env otomatis) ----
+// Tahan terhadap file buatan Windows: BOM di awal file & akhiran baris CRLF.
 function loadDotEnv(path = ".env"): void {
   if (!existsSync(path)) return;
-  for (const line of readFileSync(path, "utf8").split("\n")) {
-    const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+  const content = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
+  for (const rawLine of content.split("\n")) {
+    const line = rawLine.replace(/\r$/, "");
+    const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
     if (!m) continue;
     const [, key, rawValue] = m;
     if (process.env[key] !== undefined) continue;
@@ -208,7 +211,7 @@ async function main() {
   }
 
   const explicitMap: Record<string, string> = args.map
-    ? JSON.parse(readFileSync(args.map, "utf8"))
+    ? JSON.parse(readFileSync(args.map, "utf8").replace(/^\uFEFF/, ""))
     : {};
 
   const users: UserLite[] = await prisma.user.findMany({
