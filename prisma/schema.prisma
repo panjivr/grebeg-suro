@@ -197,3 +197,57 @@ model EventSetting {
 
   @@map("event_settings")
 }
+
+// ---- Pendaftaran volunteer (open recruitment) ----
+// Terpisah total dari User/Attendance — pendaftar belum tentu jadi volunteer.
+
+enum RegistrationStatus {
+  BARU // formulir masuk, belum diproses
+  LOLOS_BERKAS // lolos seleksi administrasi, lanjut wawancara
+  WAWANCARA // sudah/akan diwawancara, menunggu hasil
+  LOLOS // diterima sebagai volunteer
+  CADANGAN // daftar tunggu
+  TIDAK_LOLOS
+}
+
+model VolunteerRegistration {
+  id              String             @id @default(cuid())
+  regNumber       String             @unique @map("reg_number") // GS27-0001
+  nama            String
+  nik             String             @unique
+  tempatLahir     String             @map("tempat_lahir")
+  tanggalLahir    DateTime           @map("tanggal_lahir") @db.Date
+  jenisKelamin    String             @map("jenis_kelamin")
+  statusNikah     String             @map("status_nikah")
+  whatsapp        String
+  email           String?
+  alamat          String
+  pendidikan      String
+  pekerjaan       String?
+  kontakDarurat   String             @map("kontak_darurat")
+  ukuranKaos      String             @map("ukuran_kaos")
+  izinOrtu        Boolean            @default(false) @map("izin_ortu")
+  divisiUtama     String             @map("divisi_utama") // id divisi dari REGISTRATION_DIVISIONS
+  divisiCadangan  String?            @map("divisi_cadangan")
+  motivasi        String
+  pengalaman      String?
+  keahlian        String[]           @default([])
+  kendaraan       String
+  sim             String
+  kondisiFisik    String             @map("kondisi_fisik")
+  ketersediaan    String
+  tanggalTersedia String?            @map("tanggal_tersedia")
+  riwayatPenyakit String?            @map("riwayat_penyakit")
+  golonganDarah   String?            @map("golongan_darah")
+  sumberInfo      String?            @map("sumber_info")
+  komitmen        Boolean            @default(false)
+  status          RegistrationStatus @default(BARU)
+  catatan         String? // catatan internal panitia (hasil wawancara dll.)
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([divisiUtama])
+  @@index([createdAt])
+  @@map("volunteer_registrations")
+}
