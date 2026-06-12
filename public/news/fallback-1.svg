@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081B44"/>
+      <stop offset="1" stop-color="#050816"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#D8A93B" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#D8A93B" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#glow)"/>
+  <rect x="28" y="28" width="1144" height="619" fill="none" stroke="#D8A93B" stroke-opacity="0.55" stroke-width="2"/>
+  <rect x="40" y="40" width="1120" height="595" fill="none" stroke="#D8A93B" stroke-opacity="0.3" stroke-width="1"/>
+  <g stroke="#D8A93B" stroke-opacity="0.75" fill="none" stroke-width="3">
+    <circle cx="600" cy="300" r="92"/>
+    <circle cx="600" cy="300" r="70" stroke-opacity="0.4" stroke-width="1.5"/>
+    <path d="M600 178 L612 208 L588 208 Z" fill="#D8A93B" fill-opacity="0.8" stroke="none"/>
+    <path d="M600 422 L612 392 L588 392 Z" fill="#D8A93B" fill-opacity="0.8" stroke="none"/>
+    <path d="M478 300 L508 312 L508 288 Z" fill="#D8A93B" fill-opacity="0.8" stroke="none"/>
+    <path d="M722 300 L692 312 L692 288 Z" fill="#D8A93B" fill-opacity="0.8" stroke="none"/>
+  </g>
+  <text x="600" y="316" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="44" font-weight="bold" fill="#F5F7FF" letter-spacing="4">SURO</text>
+  <text x="600" y="478" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-style="italic" fill="#F5F7FF">Kabar Grebeg Suro</text>
+  <text x="600" y="522" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="19" fill="#C9D4FF" letter-spacing="6">PONOROGO &#8226; EDISI 2026</text>
+  <line x1="450" y1="545" x2="750" y2="545" stroke="#D8A93B" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="600" y="575" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#8FA0D8" letter-spacing="2">FOTO TERSEDIA PADA ARTIKEL SUMBER</text>
+</svg>

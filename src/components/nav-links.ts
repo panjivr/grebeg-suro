@@ -11,5 +11,6 @@ export const NAV: NavLink[] = [
   { href: "/#reog", label: "Reog Ponorogo" },
   { href: "/#jadwal", label: "Jadwal 2026" },
   { href: "/#tiket", label: "Tiket" },
+  { href: "/berita", label: "Berita" },
   { href: "/volunteer-grebeg-suro", label: "Volunteer" },
 ];

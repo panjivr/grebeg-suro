@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1330"/>
+      <stop offset="1" stop-color="#050816"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="0.5" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#12E0D3" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#12E0D3" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg2)"/>
+  <rect width="1200" height="675" fill="url(#glow2)"/>
+  <rect x="28" y="28" width="1144" height="619" fill="none" stroke="#12E0D3" stroke-opacity="0.5" stroke-width="2"/>
+  <rect x="40" y="40" width="1120" height="595" fill="none" stroke="#12E0D3" stroke-opacity="0.25" stroke-width="1"/>
+  <g stroke="#12E0D3" stroke-opacity="0.75" fill="none" stroke-width="3">
+    <path d="M600 192 C 530 192 470 248 470 318 C 470 364 498 396 530 408 C 512 380 506 350 522 326 C 534 354 562 368 600 368 C 638 368 666 354 678 326 C 694 350 688 380 670 408 C 702 396 730 364 730 318 C 730 248 670 192 600 192 Z"/>
+    <circle cx="558" cy="296" r="9" fill="#12E0D3" stroke="none"/>
+    <circle cx="642" cy="296" r="9" fill="#12E0D3" stroke="none"/>
+  </g>
+  <text x="600" y="478" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-style="italic" fill="#F5F7FF">Kabar Grebeg Suro</text>
+  <text x="600" y="522" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="19" fill="#C9D4FF" letter-spacing="6">BUMI REOG &#8226; EDISI 2026</text>
+  <line x1="450" y1="545" x2="750" y2="545" stroke="#12E0D3" stroke-opacity="0.45" stroke-width="1"/>
+  <text x="600" y="575" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#8FA0D8" letter-spacing="2">FOTO TERSEDIA PADA ARTIKEL SUMBER</text>
+</svg>
