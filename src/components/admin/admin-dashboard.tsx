@@ -15,6 +15,7 @@ import {
   Activity,
   TrendingUp,
   ScanFace,
+  UserPlus,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ import { AttendanceTrendChart, DivisionChart } from "@/components/admin/charts";
 import { UsersPanel } from "@/components/admin/users-panel";
 import { DivisionsPanel } from "@/components/admin/divisions-panel";
 import { AttendancePanel } from "@/components/admin/attendance-panel";
+import { RegistrationsPanel } from "@/components/admin/registrations-panel";
 import { SettingsPanel } from "@/components/admin/settings-panel";
 import { roleLabels } from "@/lib/utils";
 
@@ -132,6 +134,7 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
               <TabsTrigger value="live"><Radio className="mr-1.5 h-4 w-4" /> Live</TabsTrigger>
               <TabsTrigger value="users"><Users className="mr-1.5 h-4 w-4" /> Pengguna</TabsTrigger>
               <TabsTrigger value="divisions"><LayoutGrid className="mr-1.5 h-4 w-4" /> Divisi</TabsTrigger>
+              <TabsTrigger value="registrations"><UserPlus className="mr-1.5 h-4 w-4" /> Pendaftar</TabsTrigger>
               <TabsTrigger value="logs"><ClipboardList className="mr-1.5 h-4 w-4" /> Log</TabsTrigger>
               <TabsTrigger value="settings"><Settings className="mr-1.5 h-4 w-4" /> Pengaturan</TabsTrigger>
             </TabsList>
@@ -178,6 +181,7 @@ export function AdminDashboard({ adminName, adminRole }: { adminName: string; ad
           <TabsContent value="live"><AttendancePanel live /></TabsContent>
           <TabsContent value="users"><UsersPanel /></TabsContent>
           <TabsContent value="divisions"><DivisionsPanel /></TabsContent>
+          <TabsContent value="registrations"><RegistrationsPanel /></TabsContent>
           <TabsContent value="logs"><AttendancePanel /></TabsContent>
           <TabsContent value="settings"><SettingsPanel /></TabsContent>
         </Tabs>

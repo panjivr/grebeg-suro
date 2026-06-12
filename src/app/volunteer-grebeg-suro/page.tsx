@@ -228,16 +228,24 @@ export default function VolunteerPage() {
           <section className="overflow-hidden rounded-3xl bg-brand-gradient p-10 text-center text-white shadow-card">
             <h2 className="font-display text-2xl font-bold sm:text-3xl">Ingin Bergabung?</h2>
             <p className="mx-auto mt-3 max-w-xl text-white/85">
-              Jadilah bagian dari Volunteer Grebeg Suro dan ikut menjaga Festival Nasional
-              Reog Ponorogo. Volunteer terdaftar dapat masuk ke sistem absensi di bawah ini;
-              untuk informasi pendaftaran, ikuti kanal resmi Grebeg Suro Ponorogo.
+              Pendaftaran Volunteer Grebeg Suro 2027 telah dibuka! Isi formulir pendaftaran,
+              pilih divisimu, dan jadilah bagian dari penggerak Festival Nasional Reog
+              Ponorogo. Volunteer terdaftar dapat masuk ke sistem absensi di bawah ini.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button asChild size="lg" variant="secondary" className="group">
-                <Link href="/login">
-                  Masuk Absensi Volunteer
+                <Link href="/volunteer-grebeg-suro/daftar">
+                  Daftar Volunteer 2027
                   <ArrowRight className="transition-transform group-hover:translate-x-1" />
                 </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
+              >
+                <Link href="/login">Masuk Absensi Volunteer</Link>
               </Button>
               <Button
                 asChild
