@@ -32,11 +32,14 @@ import {
   Megaphone,
   Shirt,
   Instagram,
+  Newspaper,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/brand-logo";
 import { SiteHeader } from "@/components/site-header";
+import { NewsImage } from "@/components/news-image";
 import { NAV } from "@/components/nav-links";
+import { NEWS_SORTED } from "@/lib/news-data";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -1034,6 +1037,66 @@ export default async function LandingPage() {
               <Link href="/login">
                 Masuk Absensi Volunteer
                 <ArrowRight />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== BERITA ===== */}
+      <section id="berita" className="scroll-mt-20 border-t border-border bg-soft/40 py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionTag icon={Newspaper} center>Kabar Grebeg Suro</SectionTag>
+            <h2 className="mt-4 font-display text-3xl font-bold text-ink sm:text-4xl">
+              Berita <span className="text-gradient-brand">Terbaru</span>
+            </h2>
+            <p className="mt-4 text-body">
+              Liputan Grebeg Suro 2026 &amp; Volunteer Grebeg Suro dari berbagai kanal media
+              nasional dan lokal — lengkap dengan tautan ke artikel aslinya.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {NEWS_SORTED.slice(0, 3).map((a) => (
+              <a
+                key={a.id}
+                href={a.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Baca di ${a.source}`}
+                className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-shadow hover:shadow-card"
+              >
+                <div className="overflow-hidden">
+                  <NewsImage
+                    articleId={a.id}
+                    alt={a.title}
+                    className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  />
+                </div>
+                <div className="p-6">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-brand">
+                    {a.category}
+                  </span>
+                  <h3 className="mt-2 line-clamp-2 font-display text-lg font-bold leading-snug text-ink transition-colors group-hover:text-brand">
+                    {a.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                    {a.excerpt}
+                  </p>
+                  <p className="mt-4 text-xs text-muted-foreground">
+                    <span className="font-semibold">{a.source}</span> · {a.displayDate}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Button asChild variant="outline" className="group">
+              <Link href="/berita">
+                Baca Semua Berita
+                <ArrowRight className="transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
