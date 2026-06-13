@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "vercel-build": "node scripts/migrate-deploy.mjs && npm run build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
