@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Loader2, FileSpreadsheet, FileText, RefreshCw, Radio, ImageIcon, Download } from "lucide-react";
+import { Loader2, FileSpreadsheet, FileText, RefreshCw, Radio, ImageIcon, Download, IdCard } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSupabaseBrowser } from "@/lib/supabase";
+import { AttendanceImportDialog } from "@/components/admin/attendance-import-dialog";
+import { VolunteerCardModal } from "@/components/volunteer-card";
 import { formatTime, formatDateShort, initials, statusLabels } from "@/lib/utils";
 
 interface AttRecord {
@@ -30,7 +32,7 @@ interface AttRecord {
   clockInPhoto: string | null;
   status: string;
   workDate: string;
-  user: { name: string; profilePhoto: string | null; division: { name: string } | null };
+  user: { id: string; name: string; profilePhoto: string | null; division: { name: string } | null };
 }
 
 const statusVariant: Record<string, "success" | "warning" | "destructive" | "default" | "secondary"> = {
@@ -45,6 +47,7 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
   const [loading, setLoading] = useState(true);
   const [today] = useState(() => new Date().toISOString().slice(0, 10));
   const [preview, setPreview] = useState<{ url: string; name: string; date: string } | null>(null);
+  const [cardUserId, setCardUserId] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function downloadPhoto(url: string, filename: string) {
@@ -111,10 +114,11 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
               {live ? "Monitoring Kehadiran Hari Ini" : "Log Absensi"}
             </h2>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="ghost" onClick={load}>
               <RefreshCw className="h-4 w-4" /> Refresh
             </Button>
+            {!live && <AttendanceImportDialog onImported={load} />}
             <Button size="sm" variant="outline" onClick={() => exportFile("excel")}>
               <FileSpreadsheet className="h-4 w-4" /> Excel
             </Button>
@@ -153,6 +157,16 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
                         <AvatarFallback className="text-xs">{initials(r.user.name)}</AvatarFallback>
                       </Avatar>
                       <span className="font-medium">{r.user.name}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="ml-auto h-7 w-7 shrink-0"
+                        title="Kartu volunteer"
+                        aria-label={`Kartu volunteer ${r.user.name}`}
+                        onClick={() => setCardUserId(r.user.id)}
+                      >
+                        <IdCard className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{r.user.division?.name ?? "-"}</TableCell>
@@ -216,6 +230,12 @@ export function AttendancePanel({ live = false }: { live?: boolean }) {
           )}
         </DialogContent>
       </Dialog>
+
+      <VolunteerCardModal
+        open={!!cardUserId}
+        onOpenChange={(o) => !o && setCardUserId(null)}
+        userId={cardUserId ?? undefined}
+      />
     </>
   );
 }

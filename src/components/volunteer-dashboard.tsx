@@ -15,6 +15,7 @@ import {
   Cake,
   Hourglass,
   IdCard,
+  Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AttendanceCapture } from "@/components/attendance-capture";
+import { VolunteerCardModal } from "@/components/volunteer-card";
 import { LogoutButton } from "@/components/logout-button";
 import { BrandLogo } from "@/components/brand-logo";
 import {
@@ -97,6 +99,7 @@ export function VolunteerDashboard({
     mode: "clock-in",
   });
   const [now, setNow] = useState(new Date());
+  const [cardOpen, setCardOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(user.profilePhoto);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -268,12 +271,17 @@ export function VolunteerDashboard({
                   </div>
                 </div>
               </div>
-              <Badge
-                variant={hasClockedOut ? "secondary" : hasClockedIn ? "success" : "warning"}
-                className="self-start px-3 py-1 text-sm sm:self-end"
-              >
-                {todayStatus}
-              </Badge>
+              <div className="flex flex-col items-start gap-2 sm:items-end">
+                <Badge
+                  variant={hasClockedOut ? "secondary" : hasClockedIn ? "success" : "warning"}
+                  className="px-3 py-1 text-sm"
+                >
+                  {todayStatus}
+                </Badge>
+                <Button size="sm" variant="outline" onClick={() => setCardOpen(true)}>
+                  <Share2 /> Kartu Volunteer
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -496,6 +504,8 @@ export function VolunteerDashboard({
         onOpenChange={(open) => setCapture((c) => ({ ...c, open }))}
         onSuccess={load}
       />
+
+      <VolunteerCardModal open={cardOpen} onOpenChange={setCardOpen} />
     </div>
   );
 }
